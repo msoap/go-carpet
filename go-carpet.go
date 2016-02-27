@@ -6,6 +6,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -16,6 +17,22 @@ import (
 	"github.com/mgutz/ansi"
 	"golang.org/x/tools/cover"
 )
+
+func getDirsWithTests(root string) []string {
+	dirs := map[string]struct{}{}
+	filepath.Walk(".", func(path string, info os.FileInfo, err error) error {
+		if strings.HasSuffix(path, "_test.go") {
+			dirs[filepath.Dir(path)] = struct{}{}
+		}
+		return nil
+	})
+
+	result := make([]string, 0, len(dirs))
+	for dir := range dirs {
+		result = append(result, dir)
+	}
+	return result
+}
 
 func readFile(fileName string) (result []byte, err error) {
 	fileReader, err := os.Open(fileName)
@@ -28,17 +45,8 @@ func readFile(fileName string) (result []byte, err error) {
 	return result, err
 }
 
-func main() {
-	tmpDir, err := ioutil.TempDir("", "go-carpet-")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer os.RemoveAll(tmpDir)
-
-	coverFile := filepath.Join(tmpDir, "coverage.out")
-	stdOut := getColorWriter()
-
-	err = exec.Command("go", "test", "-coverprofile="+coverFile, "-covermode=count").Run()
+func printCoverForDir(path, coverFile string, stdOut io.Writer) {
+	err := exec.Command("go", "test", "-coverprofile="+coverFile, "-covermode=count", path).Run()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -87,5 +95,20 @@ func main() {
 		if curOffset < len(fileBytes) {
 			stdOut.Write(fileBytes[curOffset:len(fileBytes)])
 		}
+	}
+}
+
+func main() {
+	tmpDir, err := ioutil.TempDir("", "go-carpet-")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	coverFile := filepath.Join(tmpDir, "coverage.out")
+	stdOut := getColorWriter()
+
+	for _, path := range getDirsWithTests(".") {
+		printCoverForDir(path, coverFile, stdOut)
 	}
 }
