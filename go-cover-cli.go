@@ -112,6 +112,10 @@ func main() {
 
 					curCol = block.col - 1
 				}
+				if curCol < len(lineRunes) {
+					colorChunks = append(colorChunks, string(lineRunes[curCol:len(lineRunes)]))
+				}
+
 				fmt.Println(strings.Join(colorChunks, ""))
 			} else {
 				fmt.Println(line)
