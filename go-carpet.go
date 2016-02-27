@@ -45,13 +45,13 @@ func readFile(fileName string) (result []byte, err error) {
 	return result, err
 }
 
-func printCoverForDir(path, coverFile string, stdOut io.Writer) {
-	err := exec.Command("go", "test", "-coverprofile="+coverFile, "-covermode=count", path).Run()
+func printCoverForDir(path, coverFileName string, stdOut io.Writer) {
+	err := exec.Command("go", "test", "-coverprofile="+coverFileName, "-covermode=count", path).Run()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	coverProfile, err := cover.ParseProfiles(coverFile)
+	coverProfile, err := cover.ParseProfiles(coverFileName)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -105,10 +105,10 @@ func main() {
 	}
 	defer os.RemoveAll(tmpDir)
 
-	coverFile := filepath.Join(tmpDir, "coverage.out")
+	coverFileName := filepath.Join(tmpDir, "coverage.out")
 	stdOut := getColorWriter()
 
 	for _, path := range getDirsWithTests(".") {
-		printCoverForDir(path, coverFile, stdOut)
+		printCoverForDir(path, coverFileName, stdOut)
 	}
 }
