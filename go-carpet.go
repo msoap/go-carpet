@@ -29,6 +29,7 @@ func readFile(fileName string) (result []byte, err error) {
 
 func main() {
 	coverFile := "coverage.out"
+	stdOut := getColorWriter()
 
 	execTestCover := exec.Command("go", "test", "-coverprofile="+coverFile, "-covermode=count")
 	err := execTestCover.Run()
@@ -63,21 +64,21 @@ func main() {
 		curOffset := 0
 		for _, boundary := range boundaries {
 			if boundary.Offset > curOffset {
-				fmt.Print(string(fileBytes[curOffset:boundary.Offset]))
+				stdOut.Write(fileBytes[curOffset:boundary.Offset])
 			}
 			switch {
 			case boundary.Start && boundary.Count > 0:
-				fmt.Print(ansi.ColorCode("green"))
+				stdOut.Write([]byte(ansi.ColorCode("green")))
 			case boundary.Start && boundary.Count == 0:
-				fmt.Print(ansi.ColorCode("red"))
+				stdOut.Write([]byte(ansi.ColorCode("red")))
 			case !boundary.Start:
-				fmt.Print(ansi.ColorCode("reset"))
+				stdOut.Write([]byte(ansi.ColorCode("reset")))
 			}
 
 			curOffset = boundary.Offset
 		}
 		if curOffset < len(fileBytes) {
-			fmt.Print(string(fileBytes[curOffset:len(fileBytes)]))
+			stdOut.Write(fileBytes[curOffset:len(fileBytes)])
 		}
 	}
 
