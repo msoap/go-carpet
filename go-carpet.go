@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/mgutz/ansi"
@@ -28,11 +29,16 @@ func readFile(fileName string) (result []byte, err error) {
 }
 
 func main() {
-	coverFile := "coverage.out"
+	tmpDir, err := ioutil.TempDir("", "go-carpet-")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	coverFile := filepath.Join(tmpDir, "coverage.out")
 	stdOut := getColorWriter()
 
-	execTestCover := exec.Command("go", "test", "-coverprofile="+coverFile, "-covermode=count")
-	err := execTestCover.Run()
+	err = exec.Command("go", "test", "-coverprofile="+coverFile, "-covermode=count").Run()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -45,6 +51,7 @@ func main() {
 	for _, fileProfile := range coverProfile {
 		fileName := ""
 		if strings.HasPrefix(fileProfile.FileName, "_") {
+			// absolute path
 			fileName = strings.TrimLeft(fileProfile.FileName, "_")
 		} else {
 			// file in GOPATH
@@ -80,10 +87,5 @@ func main() {
 		if curOffset < len(fileBytes) {
 			stdOut.Write(fileBytes[curOffset:len(fileBytes)])
 		}
-	}
-
-	err = os.Remove(coverFile)
-	if err != nil {
-		log.Fatal(err)
 	}
 }
