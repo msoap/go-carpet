@@ -46,7 +46,7 @@ func (list MarkerList) Less(a, b int) bool { return list[a].col < list[b].col }
 func main() {
 	coverFile := "coverage.out"
 
-	execTestCover := exec.Command("go", "test", "-coverprofile="+coverFile)
+	execTestCover := exec.Command("go", "test", "-coverprofile="+coverFile, "-covermode=count")
 	err := execTestCover.Run()
 	if err != nil {
 		log.Fatal(err)
