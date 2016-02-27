@@ -22,7 +22,7 @@ func getDirsWithTests(root string) []string {
 	dirs := map[string]struct{}{}
 	filepath.Walk(".", func(path string, info os.FileInfo, err error) error {
 		if strings.HasSuffix(path, "_test.go") {
-			dirs[filepath.Dir(path)] = struct{}{}
+			dirs["./"+filepath.Dir(path)] = struct{}{}
 		}
 		return nil
 	})
