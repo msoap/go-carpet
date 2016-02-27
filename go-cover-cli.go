@@ -1,47 +1,27 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
-	"sort"
 	"strings"
 
 	"github.com/mgutz/ansi"
 	"golang.org/x/tools/cover"
 )
 
-func readFileByLines(fileName string) (result []string, err error) {
+func readFile(fileName string) (result []byte, err error) {
 	fileReader, err := os.Open(fileName)
 	if err != nil {
 		return result, err
 	}
 	defer fileReader.Close()
 
-	scanner := bufio.NewScanner(fileReader)
-	for scanner.Scan() {
-		result = append(result, scanner.Text())
-	}
-	if err := scanner.Err(); err != nil {
-		return result, err
-	}
-
-	return result, nil
+	result, err = ioutil.ReadAll(fileReader)
+	return result, err
 }
-
-type Marker struct {
-	col     int
-	isBegin bool
-	count   int
-}
-
-type MarkerList []Marker
-
-func (list MarkerList) Len() int           { return len(list) }
-func (list MarkerList) Swap(a, b int)      { list[a], list[b] = list[b], list[a] }
-func (list MarkerList) Less(a, b int) bool { return list[a].col < list[b].col }
 
 func main() {
 	coverFile := "coverage.out"
@@ -70,56 +50,30 @@ func main() {
 			continue
 		}
 
-		profileBlockByLine := map[int]MarkerList{}
-		for _, profileBlock := range fileProfile.Blocks {
-			profileBlockByLine[profileBlock.StartLine] = append(profileBlockByLine[profileBlock.StartLine], Marker{
-				col:     profileBlock.StartCol,
-				isBegin: true,
-				count:   profileBlock.Count,
-			})
-			profileBlockByLine[profileBlock.EndLine] = append(profileBlockByLine[profileBlock.EndLine], Marker{
-				col:     profileBlock.EndCol,
-				isBegin: false,
-			})
-		}
-
-		fileContent, err := readFileByLines(fileName)
+		fileBytes, err := readFile(fileName)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		for num, line := range fileContent {
-			if lineBlocks, ok := profileBlockByLine[num+1]; ok {
-				sort.Sort(lineBlocks)
-
-				lineRunes := []rune(line)
-				colorChunks := []string{}
-				curCol := 0
-
-				for _, block := range lineBlocks {
-					colorChunks = append(colorChunks, string(lineRunes[curCol:block.col-1]))
-					if block.isBegin {
-						colorCode := ""
-						if block.count > 0 {
-							colorCode = ansi.ColorCode("green")
-						} else {
-							colorCode = ansi.ColorCode("red")
-						}
-						colorChunks = append(colorChunks, colorCode)
-					} else {
-						colorChunks = append(colorChunks, ansi.ColorCode("reset"))
-					}
-
-					curCol = block.col - 1
-				}
-				if curCol < len(lineRunes) {
-					colorChunks = append(colorChunks, string(lineRunes[curCol:len(lineRunes)]))
-				}
-
-				fmt.Println(strings.Join(colorChunks, ""))
-			} else {
-				fmt.Println(line)
+		boundaries := fileProfile.Boundaries(fileBytes)
+		curOffset := 0
+		for _, boundary := range boundaries {
+			if boundary.Offset > curOffset {
+				fmt.Print(string(fileBytes[curOffset:boundary.Offset]))
 			}
+			switch {
+			case boundary.Start && boundary.Count > 0:
+				fmt.Print(ansi.ColorCode("green"))
+			case boundary.Start && boundary.Count == 0:
+				fmt.Print(ansi.ColorCode("red"))
+			case !boundary.Start:
+				fmt.Print(ansi.ColorCode("reset"))
+			}
+
+			curOffset = boundary.Offset
+		}
+		if curOffset < len(fileBytes) {
+			fmt.Print(string(fileBytes[curOffset:len(fileBytes)]))
 		}
 	}
 
