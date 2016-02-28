@@ -1,6 +1,8 @@
 /*
 go-carpet - show test coverage for Go source files
 
+It works not only in the directory GOPATH. And it works recursively for multiple packages.
+
 Install/update:
 
 	go get -u github.com/msoap/go-carpet
