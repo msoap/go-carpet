@@ -6,6 +6,8 @@ go-carpet - show test coverage for Go source files
 [![Coverage Status](https://coveralls.io/repos/github/msoap/go-carpet/badge.svg?branch=master)](https://coveralls.io/github/msoap/go-carpet?branch=master)
 [![Report Card](https://goreportcard.com/badge/github.com/msoap/go-carpet)](https://goreportcard.com/report/github.com/msoap/go-carpet)
 
+To view the test coverage in the terminal, just run go-carpet.
+
 It works not only in the directory GOPATH. And it works recursively for multiple packages.
 
 Install
