@@ -20,7 +20,7 @@ import (
 
 const usageMessage = `go-carpet - show coverage for Go source files
 
-usage: go-carpet [dirs]`
+usage: go-carpet [options] [dirs]`
 
 func getDirsWithTests(roots ...string) []string {
 	if len(roots) == 0 {
@@ -55,7 +55,17 @@ func readFile(fileName string) (result []byte, err error) {
 	return result, err
 }
 
-func getCoverForDir(path string, coverFileName string) (result []byte, err error) {
+// isStringInSlice - one of the elements of the array contained in the string
+func isSliceInString(src string, slice []string) bool {
+	for _, dst := range slice {
+		if strings.Contains(src, dst) {
+			return true
+		}
+	}
+	return false
+}
+
+func getCoverForDir(path string, coverFileName string, filesFilter []string) (result []byte, err error) {
 	osExec := exec.Command("go", "test", "-coverprofile="+coverFileName, "-covermode=count", path)
 	osExec.Stderr = os.Stderr
 	err = osExec.Run()
@@ -79,6 +89,10 @@ func getCoverForDir(path string, coverFileName string) (result []byte, err error
 		}
 		if _, err := os.Stat(fileName); os.IsNotExist(err) {
 			fmt.Printf("File '%s' is not exists\n", fileName)
+			continue
+		}
+
+		if len(filesFilter) > 0 && !isSliceInString(fileName, filesFilter) {
 			continue
 		}
 
@@ -135,6 +149,8 @@ func getTempFileName() string {
 }
 
 func main() {
+	filesFilter := ""
+	flag.StringVar(&filesFilter, "file", "", "comma separated list of files to test (defualt: all)")
 	flag.Usage = func() {
 		fmt.Println(usageMessage)
 		flag.PrintDefaults()
@@ -153,7 +169,7 @@ func main() {
 		testDirs = getDirsWithTests(".")
 	}
 	for _, path := range testDirs {
-		coverInBytes, err := getCoverForDir(path, coverFileName)
+		coverInBytes, err := getCoverForDir(path, coverFileName, strings.Split(filesFilter, ","))
 		if err != nil {
 			log.Print(err)
 		}

@@ -31,3 +31,39 @@ func Test_getDirsWithTests(t *testing.T) {
 		t.Errorf("The same directory failed")
 	}
 }
+
+func Test_isSliceInString(t *testing.T) {
+	testData := []struct {
+		src    string
+		slice  []string
+		result bool
+	}{
+		{
+			src:    "one/file.go",
+			slice:  []string{"one.go", "file.go"},
+			result: true,
+		},
+		{
+			src:    "path/path/file.go",
+			slice:  []string{"one.go", "path/file.go"},
+			result: true,
+		},
+		{
+			src:    "one/file.go",
+			slice:  []string{"one.go", "two.go"},
+			result: false,
+		},
+		{
+			src:    "one/file.go",
+			slice:  []string{},
+			result: false,
+		},
+	}
+
+	for i, item := range testData {
+		result := isSliceInString(item.src, item.slice)
+		if result != item.result {
+			t.Errorf("\n%d.\nexpected: %v\nreal    :%v", i, item.result, result)
+		}
+	}
+}
