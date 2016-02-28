@@ -79,3 +79,46 @@ func Test_isSliceInString(t *testing.T) {
 		}
 	}
 }
+
+func Test_getShadeOfGreen(t *testing.T) {
+	testData := []struct {
+		normCover float64
+		result    string
+	}{
+		{
+			normCover: 0,
+			result:    "29",
+		},
+		{
+			normCover: 1,
+			result:    "51",
+		},
+		{
+			normCover: 0.99999,
+			result:    "51",
+		},
+		{
+			normCover: 0.5,
+			result:    "40",
+		},
+		{
+			normCover: -1,
+			result:    "29",
+		},
+		{
+			normCover: 11,
+			result:    "51",
+		},
+		{
+			normCover: 100500,
+			result:    "51",
+		},
+	}
+
+	for i, item := range testData {
+		result := getShadeOfGreen(item.normCover)
+		if result != item.result {
+			t.Errorf("\n%d.\nexpected: %v\nreal    : %v", i, item.result, result)
+		}
+	}
+}

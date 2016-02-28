@@ -1,7 +1,3 @@
-/*
-Get all colors for 255-colors terminal:
-	gommand 'for i := 0; i < 256; i++ {fmt.Println(i, ansi.ColorCode(strconv.Itoa(i)) + "String" + ansi.ColorCode("reset"))}'
-*/
 package main
 
 import (
@@ -65,7 +61,34 @@ func isSliceInString(src string, slice []string) bool {
 	return false
 }
 
-func getCoverForDir(path string, coverFileName string, filesFilter []string) (result []byte, err error) {
+func getShadeOfGreen(normCover float64) string {
+	/*
+		Get all colors for 255-colors terminal:
+			gommand 'for i := 0; i < 256; i++ {fmt.Println(i, ansi.ColorCode(strconv.Itoa(i)) + "String" + ansi.ColorCode("reset"))}'
+	*/
+	var tenShadesOfGreen = []string{
+		"29",
+		"30",
+		"34",
+		"36",
+		"40",
+		"42",
+		"46",
+		"48",
+		"50",
+		"51",
+	}
+	if normCover < 0 {
+		normCover = 0
+	}
+	if normCover > 1 {
+		normCover = 1
+	}
+	index := int((normCover - 0.00001) * float64(len(tenShadesOfGreen)))
+	return tenShadesOfGreen[index]
+}
+
+func getCoverForDir(path string, coverFileName string, filesFilter []string, colors256 bool) (result []byte, err error) {
 	osExec := exec.Command("go", "test", "-coverprofile="+coverFileName, "-covermode=count", path)
 	osExec.Stderr = os.Stderr
 	err = osExec.Run()
@@ -120,7 +143,11 @@ func getCoverForDir(path string, coverFileName string, filesFilter []string) (re
 			}
 			switch {
 			case boundary.Start && boundary.Count > 0:
-				result = append(result, []byte(ansi.ColorCode("green"))...)
+				coverColor := ansi.ColorCode("green")
+				if colors256 {
+					coverColor = ansi.ColorCode(getShadeOfGreen(boundary.Norm))
+				}
+				result = append(result, []byte(coverColor)...)
 			case boundary.Start && boundary.Count == 0:
 				result = append(result, []byte(ansi.ColorCode("red"))...)
 			case !boundary.Start:
@@ -149,8 +176,9 @@ func getTempFileName() string {
 }
 
 func main() {
-	filesFilter := ""
+	filesFilter, colors256 := "", false
 	flag.StringVar(&filesFilter, "file", "", "comma separated list of files to test (defualt: all)")
+	flag.BoolVar(&colors256, "256colors", false, "use more colors on 256-color terminal")
 	flag.Usage = func() {
 		fmt.Println(usageMessage)
 		flag.PrintDefaults()
@@ -169,7 +197,7 @@ func main() {
 		testDirs = getDirsWithTests(".")
 	}
 	for _, path := range testDirs {
-		coverInBytes, err := getCoverForDir(path, coverFileName, strings.Split(filesFilter, ","))
+		coverInBytes, err := getCoverForDir(path, coverFileName, strings.Split(filesFilter, ","), colors256)
 		if err != nil {
 			log.Print(err)
 		}
