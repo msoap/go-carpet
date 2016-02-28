@@ -89,8 +89,14 @@ func getCoverForDir(path string, coverFileName string) (result []byte, err error
 
 		fileNameDisplay := fileProfile.FileName
 
-		result = append(result, []byte(ansi.ColorCode("yellow")+fileNameDisplay+ansi.ColorCode("reset")+"\n"+
-			ansi.ColorCode("black+h")+strings.Repeat("~", len(fileNameDisplay))+ansi.ColorCode("reset")+"\n")...)
+		result = append(result,
+			[]byte(ansi.ColorCode("yellow")+
+				fileNameDisplay+ansi.ColorCode("reset")+"\n"+
+				ansi.ColorCode("black+h")+
+				strings.Repeat("~", len(fileNameDisplay))+
+				ansi.ColorCode("reset")+"\n",
+			)...,
+		)
 
 		boundaries := fileProfile.Boundaries(fileBytes)
 		curOffset := 0
