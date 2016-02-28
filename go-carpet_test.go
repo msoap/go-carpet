@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"os"
+	"testing"
+)
 
 func Test_readFile(t *testing.T) {
 	file, err := readFile("go-carpet_test.go")
@@ -29,6 +32,15 @@ func Test_getDirsWithTests(t *testing.T) {
 	dirs = getDirsWithTests(".", ".")
 	if len(dirs) != 1 {
 		t.Errorf("The same directory failed")
+	}
+}
+
+func Test_getTempFileName(t *testing.T) {
+	tmpFileName := getTempFileName()
+	defer os.RemoveAll(tmpFileName)
+
+	if len(tmpFileName) == 0 {
+		t.Errorf("getTempFileName() failed")
 	}
 }
 
