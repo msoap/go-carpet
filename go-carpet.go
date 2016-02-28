@@ -118,6 +118,16 @@ func getCoverForDir(path string, coverFileName string) (result []byte, err error
 	return result, err
 }
 
+func getTempFileName() string {
+	tmpFile, err := ioutil.TempFile(".", "go-carpet-coverage-out-")
+	if err != nil {
+		log.Fatal(err)
+	}
+	tmpFile.Close()
+
+	return tmpFile.Name()
+}
+
 func main() {
 	flag.Usage = func() {
 		fmt.Println(usageMessage)
@@ -127,13 +137,8 @@ func main() {
 	flag.Parse()
 	testDirs := flag.Args()
 
-	tmpDir, err := ioutil.TempDir("", "go-carpet-")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer os.RemoveAll(tmpDir)
-
-	coverFileName := filepath.Join(tmpDir, "coverage.out")
+	coverFileName := getTempFileName()
+	defer os.RemoveAll(coverFileName)
 	stdOut := getColorWriter()
 
 	if len(testDirs) > 0 {
