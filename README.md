@@ -3,7 +3,7 @@ go-carpet - show test coverage for Go source files
 
 [![GoDoc](https://godoc.org/github.com/msoap/go-carpet?status.svg)](https://godoc.org/github.com/msoap/go-carpet)
 [![Build Status](https://travis-ci.org/msoap/go-carpet.svg?branch=master)](https://travis-ci.org/msoap/go-carpet)
-[![Coverage Status](https://coveralls.io/repos/github/msoap/go-carpet/badge.svg?branch=master)](https://coveralls.io/github/msoap/go-carpet?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/msoap/go-carpet/badge.svg?branch=master&0)](https://coveralls.io/github/msoap/go-carpet?branch=master)
 [![Report Card](https://goreportcard.com/badge/github.com/msoap/go-carpet)](https://goreportcard.com/report/github.com/msoap/go-carpet)
 
 To view the test coverage in the terminal, just run go-carpet.
@@ -23,7 +23,7 @@ Usage
 		-256colors - use more colors on 256-color terminal
 		-file string - comma separated list of files to test (defualt: all)
 
-###screenshot
+###Screenshot
 <img width="577" alt="go-carpet-screenshot" src="https://cloud.githubusercontent.com/assets/844117/13379093/a9902312-de25-11e5-8b87-9a9f2c05dac2.png">
 
 See also
