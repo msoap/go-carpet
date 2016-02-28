@@ -168,7 +168,7 @@ func getCoverForDir(path string, coverFileName string, filesFilter []string, col
 			curOffset = boundary.Offset
 		}
 		if curOffset < len(fileBytes) {
-			result = append(result, fileBytes[curOffset:len(fileBytes)]...)
+			result = append(result, fileBytes[curOffset:]...)
 		}
 		result = append(result, []byte("\n")...)
 	}
