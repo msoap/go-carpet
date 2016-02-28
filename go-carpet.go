@@ -124,7 +124,7 @@ func getCoverForDir(path string, coverFileName string, filesFilter []string, col
 			return result, err
 		}
 
-		fileNameDisplay := fileProfile.FileName
+		fileNameDisplay := strings.TrimLeft(fileProfile.FileName, "_")
 
 		result = append(result,
 			[]byte(ansi.ColorCode("yellow")+
