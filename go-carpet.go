@@ -7,7 +7,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -56,17 +55,17 @@ func readFile(fileName string) (result []byte, err error) {
 	return result, err
 }
 
-func printCoverForDir(path string, coverFileName string, stdOut io.Writer) {
+func getCoverForDir(path string, coverFileName string) (result []byte, err error) {
 	osExec := exec.Command("go", "test", "-coverprofile="+coverFileName, "-covermode=count", path)
 	osExec.Stderr = os.Stderr
-	err := osExec.Run()
+	err = osExec.Run()
 	if err != nil {
-		log.Fatalf("exec go test: %s", err)
+		return result, err
 	}
 
 	coverProfile, err := cover.ParseProfiles(coverFileName)
 	if err != nil {
-		log.Fatal(err)
+		return result, err
 	}
 
 	for _, fileProfile := range coverProfile {
@@ -85,35 +84,38 @@ func printCoverForDir(path string, coverFileName string, stdOut io.Writer) {
 
 		fileBytes, err := readFile(fileName)
 		if err != nil {
-			log.Fatal(err)
+			return result, err
 		}
 
 		fileNameDisplay := fileProfile.FileName
-		stdOut.Write([]byte(ansi.ColorCode("yellow") + fileNameDisplay + ansi.ColorCode("reset") + "\n" +
-			ansi.ColorCode("black+h") + strings.Repeat("~", len(fileNameDisplay)) + ansi.ColorCode("reset") + "\n"))
+
+		result = append(result, []byte(ansi.ColorCode("yellow")+fileNameDisplay+ansi.ColorCode("reset")+"\n"+
+			ansi.ColorCode("black+h")+strings.Repeat("~", len(fileNameDisplay))+ansi.ColorCode("reset")+"\n")...)
 
 		boundaries := fileProfile.Boundaries(fileBytes)
 		curOffset := 0
 		for _, boundary := range boundaries {
 			if boundary.Offset > curOffset {
-				stdOut.Write(fileBytes[curOffset:boundary.Offset])
+				result = append(result, fileBytes[curOffset:boundary.Offset]...)
 			}
 			switch {
 			case boundary.Start && boundary.Count > 0:
-				stdOut.Write([]byte(ansi.ColorCode("green")))
+				result = append(result, []byte(ansi.ColorCode("green"))...)
 			case boundary.Start && boundary.Count == 0:
-				stdOut.Write([]byte(ansi.ColorCode("red")))
+				result = append(result, []byte(ansi.ColorCode("red"))...)
 			case !boundary.Start:
-				stdOut.Write([]byte(ansi.ColorCode("reset")))
+				result = append(result, []byte(ansi.ColorCode("reset"))...)
 			}
 
 			curOffset = boundary.Offset
 		}
 		if curOffset < len(fileBytes) {
-			stdOut.Write(fileBytes[curOffset:len(fileBytes)])
+			result = append(result, fileBytes[curOffset:len(fileBytes)]...)
 		}
-		stdOut.Write([]byte("\n"))
+		result = append(result, []byte("\n")...)
 	}
+
+	return result, err
 }
 
 func main() {
@@ -140,6 +142,10 @@ func main() {
 		testDirs = getDirsWithTests(".")
 	}
 	for _, path := range testDirs {
-		printCoverForDir(path, coverFileName, stdOut)
+		coverInBytes, err := getCoverForDir(path, coverFileName)
+		if err != nil {
+			log.Print(err)
+		}
+		stdOut.Write(coverInBytes)
 	}
 }
