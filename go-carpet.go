@@ -57,7 +57,9 @@ func readFile(fileName string) (result []byte, err error) {
 }
 
 func printCoverForDir(path string, coverFileName string, stdOut io.Writer) {
-	err := exec.Command("go", "test", "-coverprofile="+coverFileName, "-covermode=count", path).Run()
+	osExec := exec.Command("go", "test", "-coverprofile="+coverFileName, "-covermode=count", path)
+	osExec.Stderr = os.Stderr
+	err := osExec.Run()
 	if err != nil {
 		log.Fatalf("exec go test: %s", err)
 	}
