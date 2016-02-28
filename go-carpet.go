@@ -21,7 +21,7 @@ import (
 
 const usageMessage = `go-carpet - show coverage for Go source files
 
-usage: go-carpet [options] [dirs]`
+usage: go-carpet [dirs]`
 
 func getDirsWithTests(roots ...string) []string {
 	dirs := map[string]struct{}{}
@@ -52,7 +52,7 @@ func readFile(fileName string) (result []byte, err error) {
 	return result, err
 }
 
-func printCoverForDir(path string, testFiles []string, coverFileName string, stdOut io.Writer) {
+func printCoverForDir(path string, coverFileName string, stdOut io.Writer) {
 	err := exec.Command("go", "test", "-coverprofile="+coverFileName, "-covermode=count", path).Run()
 	if err != nil {
 		log.Fatalf("exec go test: %s", err)
@@ -111,8 +111,6 @@ func printCoverForDir(path string, testFiles []string, coverFileName string, std
 }
 
 func main() {
-	testFilesOpt := ""
-	flag.StringVar(&testFilesOpt, "file", "", "test this packages only (separated by commas)")
 	flag.Usage = func() {
 		fmt.Println(usageMessage)
 		flag.PrintDefaults()
@@ -127,7 +125,6 @@ func main() {
 	}
 	defer os.RemoveAll(tmpDir)
 
-	testFiles := strings.Split(testFilesOpt, ",")
 	coverFileName := filepath.Join(tmpDir, "coverage.out")
 	stdOut := getColorWriter()
 
@@ -137,6 +134,6 @@ func main() {
 		testDirs = getDirsWithTests(".")
 	}
 	for _, path := range testDirs {
-		printCoverForDir(path, testFiles, coverFileName, stdOut)
+		printCoverForDir(path, coverFileName, stdOut)
 	}
 }
