@@ -5,6 +5,7 @@ Get all colors for 255-colors terminal:
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -18,18 +19,24 @@ import (
 	"golang.org/x/tools/cover"
 )
 
-func getDirsWithTests(root string) []string {
+const usageMessage = `go-carpet - show coverage for Go source files
+
+usage: go-carpet [options] [dirs]`
+
+func getDirsWithTests(roots ...string) []string {
 	dirs := map[string]struct{}{}
-	filepath.Walk(".", func(path string, info os.FileInfo, err error) error {
-		if strings.HasSuffix(path, "_test.go") {
-			dirs["./"+filepath.Dir(path)] = struct{}{}
-		}
-		return nil
-	})
+	for _, root := range roots {
+		filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+			if strings.HasSuffix(path, "_test.go") {
+				dirs[filepath.Dir(path)] = struct{}{}
+			}
+			return nil
+		})
+	}
 
 	result := make([]string, 0, len(dirs))
 	for dir := range dirs {
-		result = append(result, dir)
+		result = append(result, "./"+dir)
 	}
 	return result
 }
@@ -45,10 +52,10 @@ func readFile(fileName string) (result []byte, err error) {
 	return result, err
 }
 
-func printCoverForDir(path, coverFileName string, stdOut io.Writer) {
+func printCoverForDir(path string, testFiles []string, coverFileName string, stdOut io.Writer) {
 	err := exec.Command("go", "test", "-coverprofile="+coverFileName, "-covermode=count", path).Run()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("exec go test: %s", err)
 	}
 
 	coverProfile, err := cover.ParseProfiles(coverFileName)
@@ -75,6 +82,10 @@ func printCoverForDir(path, coverFileName string, stdOut io.Writer) {
 			log.Fatal(err)
 		}
 
+		fileNameDisplay := fileProfile.FileName
+		stdOut.Write([]byte(ansi.ColorCode("yellow") + fileNameDisplay + ansi.ColorCode("reset") + "\n" +
+			ansi.ColorCode("black+h") + strings.Repeat("~", len(fileNameDisplay)) + ansi.ColorCode("reset") + "\n"))
+
 		boundaries := fileProfile.Boundaries(fileBytes)
 		curOffset := 0
 		for _, boundary := range boundaries {
@@ -95,20 +106,37 @@ func printCoverForDir(path, coverFileName string, stdOut io.Writer) {
 		if curOffset < len(fileBytes) {
 			stdOut.Write(fileBytes[curOffset:len(fileBytes)])
 		}
+		stdOut.Write([]byte("\n"))
 	}
 }
 
 func main() {
+	testFilesOpt := ""
+	flag.StringVar(&testFilesOpt, "file", "", "test this packages only (separated by commas)")
+	flag.Usage = func() {
+		fmt.Println(usageMessage)
+		flag.PrintDefaults()
+		os.Exit(0)
+	}
+	flag.Parse()
+	testDirs := flag.Args()
+
 	tmpDir, err := ioutil.TempDir("", "go-carpet-")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer os.RemoveAll(tmpDir)
 
+	testFiles := strings.Split(testFilesOpt, ",")
 	coverFileName := filepath.Join(tmpDir, "coverage.out")
 	stdOut := getColorWriter()
 
-	for _, path := range getDirsWithTests(".") {
-		printCoverForDir(path, coverFileName, stdOut)
+	if len(testDirs) > 0 {
+		testDirs = getDirsWithTests(testDirs...)
+	} else {
+		testDirs = getDirsWithTests(".")
+	}
+	for _, path := range testDirs {
+		printCoverForDir(path, testFiles, coverFileName, stdOut)
 	}
 }
