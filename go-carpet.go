@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/mgutz/ansi"
@@ -96,6 +97,8 @@ func getCoverForDir(path string, coverFileName string, filesFilter []string, col
 		return result, err
 	}
 
+	reNewLine := regexp.MustCompile("\n")
+
 	coverProfile, err := cover.ParseProfiles(coverFileName)
 	if err != nil {
 		return result, err
@@ -137,22 +140,30 @@ func getCoverForDir(path string, coverFileName string, filesFilter []string, col
 
 		boundaries := fileProfile.Boundaries(fileBytes)
 		curOffset := 0
+		coverColor := ""
+
 		for _, boundary := range boundaries {
 			if boundary.Offset > curOffset {
-				result = append(result, fileBytes[curOffset:boundary.Offset]...)
+				nextChunk := fileBytes[curOffset:boundary.Offset]
+				// Add ansi color code in begin of each line (this fixed view in "less -R")
+				if coverColor != "" && coverColor != ansi.ColorCode("reset") {
+					nextChunk = reNewLine.ReplaceAllLiteral(nextChunk, []byte(ansi.ColorCode("reset")+"\n"+coverColor))
+				}
+				result = append(result, nextChunk...)
 			}
+
 			switch {
 			case boundary.Start && boundary.Count > 0:
-				coverColor := ansi.ColorCode("green")
+				coverColor = ansi.ColorCode("green")
 				if colors256 {
 					coverColor = ansi.ColorCode(getShadeOfGreen(boundary.Norm))
 				}
-				result = append(result, []byte(coverColor)...)
 			case boundary.Start && boundary.Count == 0:
-				result = append(result, []byte(ansi.ColorCode("red"))...)
+				coverColor = ansi.ColorCode("red")
 			case !boundary.Start:
-				result = append(result, []byte(ansi.ColorCode("reset"))...)
+				coverColor = ansi.ColorCode("reset")
 			}
+			result = append(result, []byte(coverColor)...)
 
 			curOffset = boundary.Offset
 		}
