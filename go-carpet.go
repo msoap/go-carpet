@@ -24,6 +24,10 @@ const usageMessage = `go-carpet - show coverage for Go source files
 usage: go-carpet [dirs]`
 
 func getDirsWithTests(roots ...string) []string {
+	if len(roots) == 0 {
+		roots = []string{"."}
+	}
+
 	dirs := map[string]struct{}{}
 	for _, root := range roots {
 		filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
