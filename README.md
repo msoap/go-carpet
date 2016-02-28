@@ -24,6 +24,7 @@ Usage
 		-file string - comma separated list of files to test (defualt: all)
 
 ###screenshot
+<img width="577" alt="go-carpet-screenshot" src="https://cloud.githubusercontent.com/assets/844117/13379093/a9902312-de25-11e5-8b87-9a9f2c05dac2.png">
 
 See also
 --------
