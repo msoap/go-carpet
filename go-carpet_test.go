@@ -5,6 +5,15 @@ import (
 	"testing"
 )
 
+func assertDontPanic(t *testing.T, fn func(), name string) {
+	defer func() {
+		if recoverInfo := recover(); recoverInfo != nil {
+			t.Errorf("The code panic: %s\npanic: %s", name, recoverInfo)
+		}
+	}()
+	fn()
+}
+
 func Test_readFile(t *testing.T) {
 	file, err := readFile("go-carpet_test.go")
 	if err != nil {
@@ -121,4 +130,8 @@ func Test_getShadeOfGreen(t *testing.T) {
 			t.Errorf("\n%d.\nexpected: %v\nreal    : %v", i, item.result, result)
 		}
 	}
+}
+
+func Test_getColorWriter(t *testing.T) {
+	assertDontPanic(t, func() { getColorWriter() }, "getColorWriter()")
 }
