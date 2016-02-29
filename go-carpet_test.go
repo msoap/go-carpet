@@ -220,3 +220,10 @@ func Test_getCoverForFile(t *testing.T) {
 		t.Errorf("1. getCoverForFile() failed")
 	}
 }
+
+func Test_runGoTest(t *testing.T) {
+	err := runGoTest("./not exists dir", "", true)
+	if err == nil {
+		t.Errorf("runGoTest() error failed")
+	}
+}

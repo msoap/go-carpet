@@ -91,14 +91,20 @@ func getShadeOfGreen(normCover float64) string {
 	return tenShadesOfGreen[index]
 }
 
-func getCoverForDir(path string, coverFileName string, filesFilter []string, colors256 bool) (result []byte, err error) {
+func runGoTest(path string, coverFileName string, hideStderr bool) error {
 	osExec := exec.Command("go", "test", "-coverprofile="+coverFileName, "-covermode=count", path)
-	osExec.Stderr = os.Stderr
-	err = osExec.Run()
+	if !hideStderr {
+		osExec.Stderr = os.Stderr
+	}
+	err := osExec.Run()
 	if err != nil {
-		return result, err
+		return err
 	}
 
+	return nil
+}
+
+func getCoverForDir(path string, coverFileName string, filesFilter []string, colors256 bool) (result []byte, err error) {
 	coverProfile, err := cover.ParseProfiles(coverFileName)
 	if err != nil {
 		return result, err
@@ -220,6 +226,12 @@ func main() {
 		testDirs = getDirsWithTests(".")
 	}
 	for _, path := range testDirs {
+		err := runGoTest(path, coverFileName, false)
+		if err != nil {
+			log.Print(err)
+			continue
+		}
+
 		coverInBytes, err := getCoverForDir(path, coverFileName, strings.Split(filesFilter, ","), colors256)
 		if err != nil {
 			log.Print(err)
