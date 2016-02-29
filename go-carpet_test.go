@@ -169,7 +169,7 @@ func Test_getCoverForFile(t *testing.T) {
 		FileName: "filename.go",
 		Mode:     "count",
 		Blocks: []cover.ProfileBlock{
-			cover.ProfileBlock{
+			{
 				StartLine: 2,
 				StartCol:  5,
 				EndLine:   2,
