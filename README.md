@@ -30,7 +30,7 @@ For view in less, use `-R` option:
     go-carpet | less -R
 
 ###Screenshot
-<img width="577" alt="go-carpet-screenshot" src="https://cloud.githubusercontent.com/assets/844117/13379093/a9902312-de25-11e5-8b87-9a9f2c05dac2.png">
+<img width="664" alt="go-carpet-screenshot" src="https://cloud.githubusercontent.com/assets/844117/13379229/967db8e0-de28-11e5-8b3f-cba51af3f3bc.png">
 
 See also
 --------
