@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/mgutz/ansi"
-
 	"golang.org/x/tools/cover"
 )
 
@@ -172,20 +171,51 @@ func Test_getCoverForFile(t *testing.T) {
 		Blocks: []cover.ProfileBlock{
 			cover.ProfileBlock{
 				StartLine: 2,
-				StartCol:  4,
+				StartCol:  5,
 				EndLine:   2,
-				EndCol:    7,
+				EndCol:    10,
 				NumStmt:   1,
 				Count:     1,
 			},
 		},
 	}
-	fileContent := []byte("1 line\n1234567890\n3 line")
+	fileContent := []byte("1 line\n123 green 456\n3 line red and other")
+
 	coloredBytes := getCoverForFile(fileProfile, fileContent, false)
 	expectOut := getColorHeader("filename.go") +
 		"1 line\n" +
-		"123" + ansi.ColorCode("green") + "456" + ansi.ColorCode("reset") + "7890\n" +
-		"3 line\n"
+		"123 " + ansi.ColorCode("green") + "green" + ansi.ColorCode("reset") + " 456\n" +
+		"3 line red and other\n"
+	if string(coloredBytes) != expectOut {
+		t.Errorf("1. getCoverForFile() failed")
+	}
+
+	// with red blocks
+	fileProfile.Blocks = append(fileProfile.Blocks,
+		cover.ProfileBlock{
+			StartLine: 3,
+			StartCol:  8,
+			EndLine:   3,
+			EndCol:    11,
+			NumStmt:   0,
+			Count:     0,
+		},
+	)
+	coloredBytes = getCoverForFile(fileProfile, fileContent, false)
+	expectOut = getColorHeader("filename.go") +
+		"1 line\n" +
+		"123 " + ansi.ColorCode("green") + "green" + ansi.ColorCode("reset") + " 456\n" +
+		"3 line " + ansi.ColorCode("red") + "red" + ansi.ColorCode("reset") + " and other\n"
+	if string(coloredBytes) != expectOut {
+		t.Errorf("1. getCoverForFile() failed")
+	}
+
+	// 256 colors
+	coloredBytes = getCoverForFile(fileProfile, fileContent, true)
+	expectOut = getColorHeader("filename.go") +
+		"1 line\n" +
+		"123 " + ansi.ColorCode("48") + "green" + ansi.ColorCode("reset") + " 456\n" +
+		"3 line " + ansi.ColorCode("red") + "red" + ansi.ColorCode("reset") + " and other\n"
 	if string(coloredBytes) != expectOut {
 		t.Errorf("1. getCoverForFile() failed")
 	}
