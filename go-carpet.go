@@ -19,6 +19,8 @@ const usageMessage = `go-carpet - show test coverage for Go source files
 
 usage: go-carpet [options] [paths]`
 
+var reNewLine = regexp.MustCompile("\n")
+
 func getDirsWithTests(roots ...string) []string {
 	if len(roots) == 0 {
 		roots = []string{"."}
@@ -97,8 +99,6 @@ func getCoverForDir(path string, coverFileName string, filesFilter []string, col
 		return result, err
 	}
 
-	reNewLine := regexp.MustCompile("\n")
-
 	coverProfile, err := cover.ParseProfiles(coverFileName)
 	if err != nil {
 		return result, err
@@ -127,63 +127,72 @@ func getCoverForDir(path string, coverFileName string, filesFilter []string, col
 			return result, err
 		}
 
-		fileNameDisplay := strings.TrimLeft(fileProfile.FileName, "_")
-
-		result = append(result,
-			[]byte(ansi.ColorCode("yellow")+
-				fileNameDisplay+ansi.ColorCode("reset")+"\n"+
-				ansi.ColorCode("black+h")+
-				strings.Repeat("~", len(fileNameDisplay))+
-				ansi.ColorCode("reset")+"\n",
-			)...,
-		)
-
-		boundaries := fileProfile.Boundaries(fileBytes)
-		curOffset := 0
-		coverColor := ""
-
-		for _, boundary := range boundaries {
-			if boundary.Offset > curOffset {
-				nextChunk := fileBytes[curOffset:boundary.Offset]
-				// Add ansi color code in begin of each line (this fixed view in "less -R")
-				if coverColor != "" && coverColor != ansi.ColorCode("reset") {
-					nextChunk = reNewLine.ReplaceAllLiteral(nextChunk, []byte(ansi.ColorCode("reset")+"\n"+coverColor))
-				}
-				result = append(result, nextChunk...)
-			}
-
-			switch {
-			case boundary.Start && boundary.Count > 0:
-				coverColor = ansi.ColorCode("green")
-				if colors256 {
-					coverColor = ansi.ColorCode(getShadeOfGreen(boundary.Norm))
-				}
-			case boundary.Start && boundary.Count == 0:
-				coverColor = ansi.ColorCode("red")
-			case !boundary.Start:
-				coverColor = ansi.ColorCode("reset")
-			}
-			result = append(result, []byte(coverColor)...)
-
-			curOffset = boundary.Offset
-		}
-		if curOffset < len(fileBytes) {
-			result = append(result, fileBytes[curOffset:]...)
-		}
-		result = append(result, []byte("\n")...)
+		result = append(result, getCoverForFile(fileProfile, fileBytes, colors256)...)
 	}
 
 	return result, err
 }
 
-func getTempFileName() string {
+func getColorHeader(fileNameDisplay string) string {
+	result := ansi.ColorCode("yellow") +
+		fileNameDisplay + ansi.ColorCode("reset") + "\n" +
+		ansi.ColorCode("black+h") +
+		strings.Repeat("~", len(fileNameDisplay)) +
+		ansi.ColorCode("reset") + "\n"
+
+	return result
+}
+
+func getCoverForFile(fileProfile *cover.Profile, fileBytes []byte, colors256 bool) (result []byte) {
+	fileNameDisplay := strings.TrimLeft(fileProfile.FileName, "_")
+
+	result = append(result, []byte(getColorHeader(fileNameDisplay))...)
+
+	boundaries := fileProfile.Boundaries(fileBytes)
+	curOffset := 0
+	coverColor := ""
+
+	for _, boundary := range boundaries {
+		if boundary.Offset > curOffset {
+			nextChunk := fileBytes[curOffset:boundary.Offset]
+			// Add ansi color code in begin of each line (this fixed view in "less -R")
+			if coverColor != "" && coverColor != ansi.ColorCode("reset") {
+				nextChunk = reNewLine.ReplaceAllLiteral(nextChunk, []byte(ansi.ColorCode("reset")+"\n"+coverColor))
+			}
+			result = append(result, nextChunk...)
+		}
+
+		switch {
+		case boundary.Start && boundary.Count > 0:
+			coverColor = ansi.ColorCode("green")
+			if colors256 {
+				coverColor = ansi.ColorCode(getShadeOfGreen(boundary.Norm))
+			}
+		case boundary.Start && boundary.Count == 0:
+			coverColor = ansi.ColorCode("red")
+		case !boundary.Start:
+			coverColor = ansi.ColorCode("reset")
+		}
+		result = append(result, []byte(coverColor)...)
+
+		curOffset = boundary.Offset
+	}
+	if curOffset < len(fileBytes) {
+		result = append(result, fileBytes[curOffset:]...)
+	}
+
+	result = append(result, []byte("\n")...)
+	return result
+}
+
+func getTempFileName() (string, error) {
 	tmpFile, err := ioutil.TempFile(".", "go-carpet-coverage-out-")
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 	tmpFile.Close()
 
-	return tmpFile.Name()
+	return tmpFile.Name(), nil
 }
 
 func main() {
@@ -198,7 +207,10 @@ func main() {
 	flag.Parse()
 	testDirs := flag.Args()
 
-	coverFileName := getTempFileName()
+	coverFileName, err := getTempFileName()
+	if err != nil {
+		log.Fatal(err)
+	}
 	defer os.RemoveAll(coverFileName)
 	stdOut := getColorWriter()
 

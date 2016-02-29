@@ -3,6 +3,10 @@ package main
 import (
 	"os"
 	"testing"
+
+	"github.com/mgutz/ansi"
+
+	"golang.org/x/tools/cover"
 )
 
 func assertDontPanic(t *testing.T, fn func(), name string) {
@@ -48,12 +52,24 @@ func Test_getDirsWithTests(t *testing.T) {
 }
 
 func Test_getTempFileName(t *testing.T) {
-	tmpFileName := getTempFileName()
+	tmpFileName, err := getTempFileName()
+	if err != nil {
+		t.Errorf("getTempFileName() got error")
+	}
 	defer os.RemoveAll(tmpFileName)
 
 	if len(tmpFileName) == 0 {
 		t.Errorf("getTempFileName() failed")
 	}
+
+	// on RO-dir
+	cwd, _ := os.Getwd()
+	os.Chdir("/")
+	_, err = getTempFileName()
+	if err == nil {
+		t.Errorf("getTempFileName() not got error")
+	}
+	os.Chdir(cwd)
 }
 
 func Test_isSliceInString(t *testing.T) {
@@ -137,4 +153,40 @@ func Test_getShadeOfGreen(t *testing.T) {
 
 func Test_getColorWriter(t *testing.T) {
 	assertDontPanic(t, func() { getColorWriter() }, "getColorWriter()")
+}
+
+func Test_getColorHeader(t *testing.T) {
+	result := getColorHeader("filename.go")
+	expected := ansi.ColorCode("yellow") + "filename.go" + ansi.ColorCode("reset") + "\n" +
+		ansi.ColorCode("black+h") + "~~~~~~~~~~~" + ansi.ColorCode("reset") + "\n"
+
+	if result != expected {
+		t.Errorf("1. getColorHeader() failed")
+	}
+}
+
+func Test_getCoverForFile(t *testing.T) {
+	fileProfile := &cover.Profile{
+		FileName: "filename.go",
+		Mode:     "count",
+		Blocks: []cover.ProfileBlock{
+			cover.ProfileBlock{
+				StartLine: 2,
+				StartCol:  4,
+				EndLine:   2,
+				EndCol:    7,
+				NumStmt:   1,
+				Count:     1,
+			},
+		},
+	}
+	fileContent := []byte("1 line\n1234567890\n3 line")
+	coloredBytes := getCoverForFile(fileProfile, fileContent, false)
+	expectOut := getColorHeader("filename.go") +
+		"1 line\n" +
+		"123" + ansi.ColorCode("green") + "456" + ansi.ColorCode("reset") + "7890\n" +
+		"3 line\n"
+	if string(coloredBytes) != expectOut {
+		t.Errorf("1. getCoverForFile() failed")
+	}
 }
