@@ -17,10 +17,13 @@ func assertDontPanic(t *testing.T, fn func(), name string) {
 func Test_readFile(t *testing.T) {
 	file, err := readFile("go-carpet_test.go")
 	if err != nil {
-		t.Errorf("Got error: %s", err)
+		t.Errorf("readFile(): got error: %s", err)
 	}
 	if len(file) == 0 {
-		t.Errorf("File empty")
+		t.Errorf("readFile(): file empty")
+	}
+	if string(file[:12]) != "package main" {
+		t.Errorf("readFile(): failed read first line")
 	}
 
 	_, err = readFile("dont exists file")
