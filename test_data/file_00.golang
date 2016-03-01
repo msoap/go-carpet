@@ -1,0 +1,12 @@
+package main
+
+func readFile(fileName string) (result []byte, err error) {
+	fileReader, err := os.Open(fileName)
+	if err != nil {
+		return result, err
+	}
+	defer fileReader.Close()
+
+	result, err = ioutil.ReadAll(fileReader)
+	return result, err
+}

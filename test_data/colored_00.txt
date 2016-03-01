@@ -1,0 +1,29 @@
+[33m./test_data/file_00.golang[0m
+[90m~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+package main
+
+func readFile(fileName string) (result []byte, err error) {
+	[32mfileReader, err := os.Open(fileName)[0m
+	[31mif err != nil {[0m
+		return result, err
+	}
+	defer fileReader.Close()
+
+	result, err = ioutil.ReadAll(fileReader)
+	return result, err
+}
+
+[33m./test_data/file_01.golang[0m
+[90m~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+package main
+
+// isStringInSlice - one of the elements of the array contained in the string
+func isSliceInString(src string, slice []string) bool {
+	for _, dst := range slice [32m{[0m
+[32m		if strings.Contains(src, dst) {[0m
+[32m			return true[0m
+[32m		}[0m
+[32m	}[0m
+	[31mreturn false[0m
+}
+

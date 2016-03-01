@@ -1,0 +1,11 @@
+package main
+
+// isStringInSlice - one of the elements of the array contained in the string
+func isSliceInString(src string, slice []string) bool {
+	for _, dst := range slice {
+		if strings.Contains(src, dst) {
+			return true
+		}
+	}
+	return false
+}

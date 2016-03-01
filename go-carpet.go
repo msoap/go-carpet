@@ -113,15 +113,11 @@ func getCoverForDir(path string, coverFileName string, filesFilter []string, col
 	for _, fileProfile := range coverProfile {
 		fileName := ""
 		if strings.HasPrefix(fileProfile.FileName, "_") {
-			// absolute path
+			// absolute path (or relative in tests)
 			fileName = strings.TrimLeft(fileProfile.FileName, "_")
 		} else {
 			// file in GOPATH
 			fileName = os.Getenv("GOPATH") + "/src/" + fileProfile.FileName
-		}
-		if _, err := os.Stat(fileName); os.IsNotExist(err) {
-			fmt.Printf("File '%s' is not exists\n", fileName)
-			continue
 		}
 
 		if len(filesFilter) > 0 && !isSliceInString(fileName, filesFilter) {
@@ -235,6 +231,7 @@ func main() {
 		coverInBytes, err := getCoverForDir(path, coverFileName, strings.Split(filesFilter, ","), colors256)
 		if err != nil {
 			log.Print(err)
+			continue
 		}
 		stdOut.Write(coverInBytes)
 	}
