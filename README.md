@@ -48,6 +48,11 @@ For view in less, use `-R` option:
 ###Screenshot
 <img width="664" alt="go-carpet-screenshot" src="https://cloud.githubusercontent.com/assets/844117/13379229/967db8e0-de28-11e5-8b3f-cba51af3f3bc.png">
 
+TODO
+----
+
+  * option `-func` for filter by functions
+
 See also
 --------
 
