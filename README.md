@@ -33,10 +33,11 @@ Or install from homebrew (OS X):
 Usage
 -----
 
-	go-carpet [-options] [paths]
-	options:
-		-256colors - use more colors on 256-color terminal (indicate the level of coverage)
-		-file string - comma separated list of files to test (default: all)
+    go-carpet [-options] [paths]
+    options:
+        -256colors - use more colors on 256-color terminal (indicate the level of coverage)
+        -file string - comma separated list of files to test (default: all)
+        -include-vendor - include vendor directories for show coverage (Godeps, vendor)
 
 For view in less, use `-R` option:
 

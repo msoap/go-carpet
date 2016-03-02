@@ -15,6 +15,7 @@ Usage:
 	options:
 		-256colors - use more colors on 256-color terminal (indicate the level of coverage)
 		-file string - comma separated list of files to test (default: all)
+		-include-vendor - include vendor directories for show coverage (Godeps, vendor)
 
 Source: https://github.com/msoap/go-carpet
 

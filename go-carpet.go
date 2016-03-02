@@ -19,9 +19,13 @@ const usageMessage = `go-carpet - show test coverage for Go source files
 
 usage: go-carpet [options] [paths]`
 
-var reNewLine = regexp.MustCompile("\n")
+var (
+	reNewLine = regexp.MustCompile("\n")
+	// vendors directories for skip
+	vendorDirs = map[string]bool{"Godeps": true, "vendor": true, ".vendor": true, "_vendor": true}
+)
 
-func getDirsWithTests(roots ...string) []string {
+func getDirsWithTests(includeVendor bool, roots ...string) []string {
 	if len(roots) == 0 {
 		roots = []string{"."}
 	}
@@ -38,6 +42,9 @@ func getDirsWithTests(roots ...string) []string {
 
 	result := make([]string, 0, len(dirs))
 	for dir := range dirs {
+		if _, ok := vendorDirs[dir]; !includeVendor && ok {
+			continue
+		}
 		result = append(result, "./"+dir)
 	}
 	return result
@@ -198,9 +205,10 @@ func getTempFileName() (string, error) {
 }
 
 func main() {
-	filesFilter, colors256 := "", false
+	filesFilter, colors256, includeVendor := "", false, false
 	flag.StringVar(&filesFilter, "file", "", "comma separated list of files to test (default: all)")
 	flag.BoolVar(&colors256, "256colors", false, "use more colors on 256-color terminal (indicate the level of coverage)")
+	flag.BoolVar(&includeVendor, "include-vendor", false, "include vendor directories for show coverage (Godeps, vendor)")
 	flag.Usage = func() {
 		fmt.Println(usageMessage)
 		flag.PrintDefaults()
@@ -217,9 +225,9 @@ func main() {
 	stdOut := getColorWriter()
 
 	if len(testDirs) > 0 {
-		testDirs = getDirsWithTests(testDirs...)
+		testDirs = getDirsWithTests(includeVendor, testDirs...)
 	} else {
-		testDirs = getDirsWithTests(".")
+		testDirs = getDirsWithTests(includeVendor, ".")
 	}
 	for _, path := range testDirs {
 		err := runGoTest(path, coverFileName, false)

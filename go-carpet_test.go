@@ -37,18 +37,31 @@ func Test_readFile(t *testing.T) {
 }
 
 func Test_getDirsWithTests(t *testing.T) {
-	dirs := getDirsWithTests(".")
+	dirs := getDirsWithTests(false, ".")
 	if len(dirs) == 0 {
-		t.Errorf("Dir list is empty")
+		t.Errorf("getDirsWithTests(): dir list is empty")
 	}
-	dirs = getDirsWithTests()
+	dirs = getDirsWithTests(false)
 	if len(dirs) == 0 {
-		t.Errorf("Dir list is empty")
+		t.Errorf("getDirsWithTests(): dir list is empty")
 	}
-	dirs = getDirsWithTests(".", ".")
+	dirs = getDirsWithTests(false, ".", ".")
+	if len(dirs) != 4 {
+		t.Errorf("getDirsWithTests(): the same directory failed")
+	}
+
+	cwd, _ := os.Getwd()
+	os.Chdir("./test_data")
+	dirs = getDirsWithTests(false, ".")
 	if len(dirs) != 1 {
-		t.Errorf("The same directory failed")
+		t.Errorf("getDirsWithTests(): without vendor dirs")
 	}
+
+	dirs = getDirsWithTests(true, ".")
+	if len(dirs) != 3 {
+		t.Errorf("getDirsWithTests(): with vendor dirs")
+	}
+	os.Chdir(cwd)
 }
 
 func Test_getTempFileName(t *testing.T) {
