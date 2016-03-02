@@ -10,10 +10,10 @@ before_install:
   - go get github.com/mattn/goveralls
   - if ! go get github.com/golang/tools/cmd/cover; then go get golang.org/x/tools/cmd/cover; fi
 
-install: go get -t ./...
+install: go get -t
 
 script:
-  - go test -v ./...
-  - go vet ./...
+  - go test -v
+  - go vet
   - diff <(gofmt -d .) <(echo -n "")
   - if [ "$TRAVIS_GO_VERSION" = "1.6" ]; then $HOME/gopath/bin/goveralls -service=travis-ci || true; fi
