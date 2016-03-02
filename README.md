@@ -9,9 +9,11 @@ go-carpet - show test coverage for Go source files
 
 To view the test coverage in the terminal, just run go-carpet.
 
-It works not only in the directory GOPATH. And it works recursively for multiple packages.
+It works outside of the directory GOPATH. And it works recursively for multiple packages.
 
 With -256colors option, shades of green indicate the level of coverage.
+
+By default skip vendor directories (Godeps,vendor), otherwise use -include-vendor option.
 
 Install
 -------
