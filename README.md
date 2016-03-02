@@ -36,7 +36,7 @@ Usage
 	go-carpet [-options] [paths]
 	options:
 		-256colors - use more colors on 256-color terminal (indicate the level of coverage)
-		-file string - comma separated list of files to test (defualt: all)
+		-file string - comma separated list of files to test (default: all)
 
 For view in less, use `-R` option:
 
