@@ -199,7 +199,7 @@ func getTempFileName() (string, error) {
 
 func main() {
 	filesFilter, colors256 := "", false
-	flag.StringVar(&filesFilter, "file", "", "comma separated list of files to test (defualt: all)")
+	flag.StringVar(&filesFilter, "file", "", "comma separated list of files to test (default: all)")
 	flag.BoolVar(&colors256, "256colors", false, "use more colors on 256-color terminal (indicate the level of coverage)")
 	flag.Usage = func() {
 		fmt.Println(usageMessage)
