@@ -22,7 +22,7 @@ usage: go-carpet [options] [paths]`
 var (
 	reNewLine = regexp.MustCompile("\n")
 	// vendors directories for skip
-	vendorDirs = map[string]bool{"Godeps": true, "vendor": true, ".vendor": true, "_vendor": true}
+	vendorDirs = []string{"Godeps", "vendor", ".vendor", "_vendor"}
 )
 
 func getDirsWithTests(includeVendor bool, roots ...string) []string {
@@ -42,7 +42,7 @@ func getDirsWithTests(includeVendor bool, roots ...string) []string {
 
 	result := make([]string, 0, len(dirs))
 	for dir := range dirs {
-		if _, ok := vendorDirs[dir]; !includeVendor && ok {
+		if !includeVendor && isSliceInStringPrefix(dir, vendorDirs) {
 			continue
 		}
 		result = append(result, "./"+dir)
@@ -61,10 +61,20 @@ func readFile(fileName string) (result []byte, err error) {
 	return result, err
 }
 
-// isStringInSlice - one of the elements of the array contained in the string
+// isSliceInString - one of the elements of the array contained in the string
 func isSliceInString(src string, slice []string) bool {
 	for _, dst := range slice {
 		if strings.Contains(src, dst) {
+			return true
+		}
+	}
+	return false
+}
+
+// isSliceInStringPrefix - one of the elements of the array is are prefix in the string
+func isSliceInStringPrefix(src string, slice []string) bool {
+	for _, dst := range slice {
+		if strings.HasPrefix(src, dst) {
 			return true
 		}
 	}

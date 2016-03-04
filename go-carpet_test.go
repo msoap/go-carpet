@@ -46,7 +46,7 @@ func Test_getDirsWithTests(t *testing.T) {
 		t.Errorf("getDirsWithTests(): dir list is empty")
 	}
 	dirs = getDirsWithTests(false, ".", ".")
-	if len(dirs) != 4 {
+	if len(dirs) != 5 {
 		t.Errorf("getDirsWithTests(): the same directory failed")
 	}
 
@@ -58,7 +58,7 @@ func Test_getDirsWithTests(t *testing.T) {
 	}
 
 	dirs = getDirsWithTests(true, ".")
-	if len(dirs) != 3 {
+	if len(dirs) != 4 {
 		t.Errorf("getDirsWithTests(): with vendor dirs")
 	}
 	os.Chdir(cwd)
