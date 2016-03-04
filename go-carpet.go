@@ -121,6 +121,26 @@ func runGoTest(path string, coverFileName string, hideStderr bool) error {
 	return nil
 }
 
+func guessAbsPathInGOPATH(GOPATH, relPath string) (absPath string, err error) {
+	if GOPATH == "" {
+		return "", fmt.Errorf("GOPATH is not set")
+	}
+
+	gopathChunks := strings.Split(GOPATH, string(os.PathListSeparator))
+	for _, gopathChunk := range gopathChunks {
+		guessAbsPath := strings.Join([]string{gopathChunk, "src", relPath}, string(os.PathSeparator))
+		if _, err = os.Stat(guessAbsPath); err == nil {
+			absPath = guessAbsPath
+			break
+		}
+	}
+
+	if absPath == "" {
+		return "", fmt.Errorf("File '%s' not found in GOPATH", relPath)
+	}
+	return absPath, err
+}
+
 func getCoverForDir(path string, coverFileName string, filesFilter []string, colors256 bool) (result []byte, err error) {
 	coverProfile, err := cover.ParseProfiles(coverFileName)
 	if err != nil {
@@ -133,8 +153,11 @@ func getCoverForDir(path string, coverFileName string, filesFilter []string, col
 			// absolute path (or relative in tests)
 			fileName = strings.TrimLeft(fileProfile.FileName, "_")
 		} else {
-			// file in GOPATH
-			fileName = os.Getenv("GOPATH") + "/src/" + fileProfile.FileName
+			// file in one dir in GOPATH
+			fileName, err = guessAbsPathInGOPATH(os.Getenv("GOPATH"), fileProfile.FileName)
+			if err != nil {
+				return result, err
+			}
 		}
 
 		if len(filesFilter) > 0 && !isSliceInString(fileName, filesFilter) {

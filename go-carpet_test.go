@@ -342,3 +342,38 @@ func Test_runGoTest(t *testing.T) {
 		t.Errorf("runGoTest() error failed")
 	}
 }
+
+func Test_guessAbsPathInGOPATH(t *testing.T) {
+	GOPATH := ""
+	absPath, err := guessAbsPathInGOPATH(GOPATH, "file.golang")
+	if absPath != "" || err == nil {
+		t.Errorf("1. guessAbsPathInGOPATH() empty GOPATH")
+	}
+
+	sep := string(os.PathSeparator)
+	cwd, _ := os.Getwd()
+
+	GOPATH = cwd + sep + "test_data"
+	absPath, err = guessAbsPathInGOPATH(GOPATH, "file.golang")
+	if err != nil {
+		t.Errorf("2. guessAbsPathInGOPATH() error: %s", err)
+	}
+	if absPath != cwd+sep+"test_data"+sep+"src"+sep+"file.golang" {
+		t.Errorf("3. guessAbsPathInGOPATH() empty GOPATH")
+	}
+
+	GOPATH = cwd + sep + "test_data" + string(os.PathListSeparator) + "/tmp"
+	absPath, err = guessAbsPathInGOPATH(GOPATH, "file.golang")
+	if err != nil {
+		t.Errorf("4. guessAbsPathInGOPATH() error: %s", err)
+	}
+	if absPath != cwd+sep+"test_data"+sep+"src"+sep+"file.golang" {
+		t.Errorf("5. guessAbsPathInGOPATH() empty GOPATH")
+	}
+
+	GOPATH = "/tmp" + string(os.PathListSeparator) + "/"
+	absPath, err = guessAbsPathInGOPATH(GOPATH, "file.golang")
+	if absPath != "" || err == nil {
+		t.Errorf("6. guessAbsPathInGOPATH() file not in GOPATH")
+	}
+}
