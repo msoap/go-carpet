@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strings"
 
 	"github.com/mgutz/ansi"
@@ -151,7 +152,11 @@ func getCoverForDir(path string, coverFileName string, filesFilter []string, col
 		fileName := ""
 		if strings.HasPrefix(fileProfile.FileName, "_") {
 			// absolute path (or relative in tests)
-			fileName = strings.TrimLeft(fileProfile.FileName, "_")
+			if runtime.GOOS != "windows" {
+				fileName = strings.TrimLeft(fileProfile.FileName, "_")
+			} else {
+				fileName = regexp.MustCompile(`^_\\([A-Z])_`).ReplaceAllString(fileProfile.FileName, "$1:")
+			}
 		} else {
 			// file in one dir in GOPATH
 			fileName, err = guessAbsPathInGOPATH(os.Getenv("GOPATH"), fileProfile.FileName)
