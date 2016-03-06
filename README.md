@@ -46,7 +46,7 @@ For view in less, use `-R` option:
     go-carpet | less -R
 
 ###Screenshot
-<img width="664" alt="go-carpet-screenshot" src="https://cloud.githubusercontent.com/assets/844117/13379229/967db8e0-de28-11e5-8b3f-cba51af3f3bc.png">
+<img width="662" alt="screen shot 2016-03-06" src="https://cloud.githubusercontent.com/assets/844117/13554107/e6c7c82a-e3a7-11e5-82d6-3481f1fead11.png">
 
 TODO
 ----
