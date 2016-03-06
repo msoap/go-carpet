@@ -13,4 +13,3 @@ func getColorWriter() io.Writer {
 	[32mreturn (io.Writer)(os.Stdout)[0m
 }
 
-[33mCoverage: 100.0% of statements[0m

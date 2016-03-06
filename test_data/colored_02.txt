@@ -12,4 +12,3 @@ func isSliceInString(src string, slice []string) bool {
 	[31mreturn false[0m
 }
 
-[33mCoverage: 100.0% of statements[0m

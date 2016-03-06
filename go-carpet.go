@@ -142,13 +142,12 @@ func guessAbsPathInGOPATH(GOPATH, relPath string) (absPath string, err error) {
 	return absPath, err
 }
 
-func getCoverForDir(path string, coverFileName string, filesFilter []string, colors256 bool) (result []byte, err error) {
+func getCoverForDir(path string, coverFileName string, filesFilter []string, colors256 bool) (result []byte, profileBlocks []cover.ProfileBlock, err error) {
 	coverProfile, err := cover.ParseProfiles(coverFileName)
 	if err != nil {
-		return result, err
+		return result, profileBlocks, err
 	}
 
-	allProfileBlocks := []cover.ProfileBlock{}
 	for _, fileProfile := range coverProfile {
 		fileName := ""
 		if strings.HasPrefix(fileProfile.FileName, "_") {
@@ -163,7 +162,7 @@ func getCoverForDir(path string, coverFileName string, filesFilter []string, col
 			// file in one dir in GOPATH
 			fileName, err = guessAbsPathInGOPATH(os.Getenv("GOPATH"), fileProfile.FileName)
 			if err != nil {
-				return result, err
+				return result, profileBlocks, err
 			}
 		}
 
@@ -173,20 +172,14 @@ func getCoverForDir(path string, coverFileName string, filesFilter []string, col
 
 		fileBytes, err := readFile(fileName)
 		if err != nil {
-			return result, err
+			return result, profileBlocks, err
 		}
 
 		result = append(result, getCoverForFile(fileProfile, fileBytes, colors256)...)
-		allProfileBlocks = append(allProfileBlocks, fileProfile.Blocks...)
+		profileBlocks = append(profileBlocks, fileProfile.Blocks...)
 	}
 
-	if len(allProfileBlocks) > 0 {
-		stat := getStatForProfileBlocks(allProfileBlocks)
-		totalCoverage := fmt.Sprintf("Coverage: %.1f%% of statements", stat)
-		result = append(result, []byte(getColorHeader(totalCoverage, false))...)
-	}
-
-	return result, err
+	return result, profileBlocks, err
 }
 
 func getColorHeader(header string, addUnderiline bool) string {
@@ -292,6 +285,7 @@ func main() {
 	}
 	defer os.RemoveAll(coverFileName)
 	stdOut := getColorWriter()
+	allProfileBlocks := []cover.ProfileBlock{}
 
 	if len(testDirs) > 0 {
 		testDirs = getDirsWithTests(includeVendor, testDirs...)
@@ -305,11 +299,18 @@ func main() {
 			continue
 		}
 
-		coverInBytes, err := getCoverForDir(path, coverFileName, strings.Split(filesFilter, ","), colors256)
+		coverInBytes, profileBlocks, err := getCoverForDir(path, coverFileName, strings.Split(filesFilter, ","), colors256)
 		if err != nil {
 			log.Print(err)
 			continue
 		}
 		stdOut.Write(coverInBytes)
+		allProfileBlocks = append(allProfileBlocks, profileBlocks...)
+	}
+
+	if len(allProfileBlocks) > 0 {
+		stat := getStatForProfileBlocks(allProfileBlocks)
+		totalCoverage := fmt.Sprintf("Coverage: %.1f%% of statements", stat)
+		stdOut.Write([]byte(getColorHeader(totalCoverage, false)))
 	}
 }
