@@ -114,8 +114,9 @@ func runGoTest(path string, coverFileName string, hideStderr bool) error {
 	if !hideStderr {
 		osExec.Stderr = os.Stderr
 	}
-	err := osExec.Run()
+	output, err := osExec.Output()
 	if err != nil {
+		fmt.Print(string(output))
 		return err
 	}
 
