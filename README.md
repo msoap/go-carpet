@@ -52,7 +52,6 @@ TODO
 ----
 
   * option `-func` for filter by functions
-  * option `-stat` for show coverage stat by file or/and for all files
 
 See also
 --------
