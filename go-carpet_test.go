@@ -204,12 +204,19 @@ func Test_getColorWriter(t *testing.T) {
 }
 
 func Test_getColorHeader(t *testing.T) {
-	result := getColorHeader("filename.go")
+	result := getColorHeader("filename.go", true)
 	expected := ansi.ColorCode("yellow") + "filename.go" + ansi.ColorCode("reset") + "\n" +
 		ansi.ColorCode("black+h") + "~~~~~~~~~~~" + ansi.ColorCode("reset") + "\n"
 
 	if result != expected {
 		t.Errorf("1. getColorHeader() failed")
+	}
+
+	result = getColorHeader("filename.go", false)
+	expected = ansi.ColorCode("yellow") + "filename.go" + ansi.ColorCode("reset") + "\n"
+
+	if result != expected {
+		t.Errorf("2. getColorHeader() failed")
 	}
 }
 
@@ -231,7 +238,7 @@ func Test_getCoverForFile(t *testing.T) {
 	fileContent := []byte("1 line\n123 green 456\n3 line red and other")
 
 	coloredBytes := getCoverForFile(fileProfile, fileContent, false)
-	expectOut := getColorHeader("filename.go") +
+	expectOut := getColorHeader("filename.go - 100.0%", true) +
 		"1 line\n" +
 		"123 " + ansi.ColorCode("green") + "green" + ansi.ColorCode("reset") + " 456\n" +
 		"3 line red and other\n"
@@ -251,22 +258,22 @@ func Test_getCoverForFile(t *testing.T) {
 		},
 	)
 	coloredBytes = getCoverForFile(fileProfile, fileContent, false)
-	expectOut = getColorHeader("filename.go") +
+	expectOut = getColorHeader("filename.go - 100.0%", true) +
 		"1 line\n" +
 		"123 " + ansi.ColorCode("green") + "green" + ansi.ColorCode("reset") + " 456\n" +
 		"3 line " + ansi.ColorCode("red") + "red" + ansi.ColorCode("reset") + " and other\n"
 	if string(coloredBytes) != expectOut {
-		t.Errorf("1. getCoverForFile() failed")
+		t.Errorf("2. getCoverForFile() failed")
 	}
 
 	// 256 colors
 	coloredBytes = getCoverForFile(fileProfile, fileContent, true)
-	expectOut = getColorHeader("filename.go") +
+	expectOut = getColorHeader("filename.go - 100.0%", true) +
 		"1 line\n" +
 		"123 " + ansi.ColorCode("48") + "green" + ansi.ColorCode("reset") + " 456\n" +
 		"3 line " + ansi.ColorCode("red") + "red" + ansi.ColorCode("reset") + " and other\n"
 	if string(coloredBytes) != expectOut {
-		t.Errorf("1. getCoverForFile() failed")
+		t.Errorf("3. getCoverForFile() failed")
 	}
 }
 
@@ -309,5 +316,61 @@ func Test_guessAbsPathInGOPATH(t *testing.T) {
 	absPath, err = guessAbsPathInGOPATH(GOPATH, "file.golang")
 	if absPath != "" || err == nil {
 		t.Errorf("6. guessAbsPathInGOPATH() file not in GOPATH")
+	}
+}
+
+func Test_getStatForProfileBlocks(t *testing.T) {
+	profileBlocks := []cover.ProfileBlock{
+		{
+			StartLine: 2,
+			StartCol:  5,
+			EndLine:   2,
+			EndCol:    10,
+			NumStmt:   1,
+			Count:     1,
+		},
+	}
+
+	stat := getStatForProfileBlocks(profileBlocks)
+	if stat != 100.0 {
+		t.Errorf("1. getStatForProfileBlocks() failed")
+	}
+
+	profileBlocks = append(profileBlocks,
+		cover.ProfileBlock{
+			StartLine: 3,
+			StartCol:  5,
+			EndLine:   3,
+			EndCol:    10,
+			NumStmt:   1,
+			Count:     0,
+		},
+	)
+	stat = getStatForProfileBlocks(profileBlocks)
+	if stat != 50.0 {
+		t.Errorf("2. getStatForProfileBlocks() failed")
+	}
+
+	profileBlocks = append(profileBlocks,
+		cover.ProfileBlock{
+			StartLine: 4,
+			StartCol:  5,
+			EndLine:   4,
+			EndCol:    10,
+			NumStmt:   1,
+			Count:     0,
+		},
+		cover.ProfileBlock{
+			StartLine: 4,
+			StartCol:  5,
+			EndLine:   4,
+			EndCol:    10,
+			NumStmt:   1,
+			Count:     0,
+		},
+	)
+	stat = getStatForProfileBlocks(profileBlocks)
+	if stat != 25.0 {
+		t.Errorf("3. getStatForProfileBlocks() failed")
 	}
 }

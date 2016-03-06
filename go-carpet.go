@@ -148,6 +148,7 @@ func getCoverForDir(path string, coverFileName string, filesFilter []string, col
 		return result, err
 	}
 
+	allProfileBlocks := []cover.ProfileBlock{}
 	for _, fileProfile := range coverProfile {
 		fileName := ""
 		if strings.HasPrefix(fileProfile.FileName, "_") {
@@ -176,25 +177,54 @@ func getCoverForDir(path string, coverFileName string, filesFilter []string, col
 		}
 
 		result = append(result, getCoverForFile(fileProfile, fileBytes, colors256)...)
+		allProfileBlocks = append(allProfileBlocks, fileProfile.Blocks...)
+	}
+
+	if len(allProfileBlocks) > 0 {
+		stat := getStatForProfileBlocks(allProfileBlocks)
+		totalCoverage := fmt.Sprintf("Coverage: %.1f%% of statements", stat)
+		result = append(result, []byte(getColorHeader(totalCoverage, false))...)
 	}
 
 	return result, err
 }
 
-func getColorHeader(fileNameDisplay string) string {
+func getColorHeader(header string, addUnderiline bool) string {
 	result := ansi.ColorCode("yellow") +
-		fileNameDisplay + ansi.ColorCode("reset") + "\n" +
-		ansi.ColorCode("black+h") +
-		strings.Repeat("~", len(fileNameDisplay)) +
-		ansi.ColorCode("reset") + "\n"
+		header + ansi.ColorCode("reset") + "\n"
+
+	if addUnderiline {
+		result += ansi.ColorCode("black+h") +
+			strings.Repeat("~", len(header)) +
+			ansi.ColorCode("reset") + "\n"
+
+	}
 
 	return result
 }
 
-func getCoverForFile(fileProfile *cover.Profile, fileBytes []byte, colors256 bool) (result []byte) {
-	fileNameDisplay := strings.TrimLeft(fileProfile.FileName, "_")
+// algorithms from Go-sources:
+//   src/cmd/cover/html.go::percentCovered()
+//   src/testing/cover.go::coverReport()
+func getStatForProfileBlocks(fileProfileBlocks []cover.ProfileBlock) (stat float64) {
+	var total, covered int64
+	for _, profileBlock := range fileProfileBlocks {
+		total += int64(profileBlock.NumStmt)
+		if profileBlock.Count > 0 {
+			covered += int64(profileBlock.NumStmt)
+		}
+	}
+	if total > 0 {
+		stat = float64(covered) / float64(total) * 100.0
+	}
 
-	result = append(result, []byte(getColorHeader(fileNameDisplay))...)
+	return stat
+}
+
+func getCoverForFile(fileProfile *cover.Profile, fileBytes []byte, colors256 bool) (result []byte) {
+	stat := getStatForProfileBlocks(fileProfile.Blocks)
+	fileNameDisplay := fmt.Sprintf("%s - %.1f%%", strings.TrimLeft(fileProfile.FileName, "_"), stat)
+	result = append(result, []byte(getColorHeader(fileNameDisplay, true))...)
 
 	boundaries := fileProfile.Boundaries(fileBytes)
 	curOffset := 0
