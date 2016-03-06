@@ -190,7 +190,6 @@ func getColorHeader(header string, addUnderiline bool) string {
 		result += ansi.ColorCode("black+h") +
 			strings.Repeat("~", len(header)) +
 			ansi.ColorCode("reset") + "\n"
-
 	}
 
 	return result
