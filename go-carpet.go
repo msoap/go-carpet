@@ -155,6 +155,7 @@ func getCoverForDir(path string, coverFileName string, filesFilter []string, col
 			if runtime.GOOS != "windows" {
 				fileName = strings.TrimLeft(fileProfile.FileName, "_")
 			} else {
+				// "_\C_\Users\..." -> "C:\Users\..."
 				fileName = regexp.MustCompile(`^_\\([A-Z])_`).ReplaceAllString(fileProfile.FileName, "$1:")
 			}
 		} else {
