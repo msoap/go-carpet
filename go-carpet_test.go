@@ -50,7 +50,7 @@ func Test_getDirsWithTests(t *testing.T) {
 	}
 
 	cwd, _ := os.Getwd()
-	os.Chdir("./test_data")
+	os.Chdir("./testdata")
 	dirs = getDirsWithTests(false, ".")
 	if len(dirs) != 1 {
 		t.Errorf("getDirsWithTests(): without vendor dirs")
@@ -294,21 +294,21 @@ func Test_guessAbsPathInGOPATH(t *testing.T) {
 	sep := string(os.PathSeparator)
 	cwd, _ := os.Getwd()
 
-	GOPATH = cwd + sep + "test_data"
+	GOPATH = cwd + sep + "testdata"
 	absPath, err = guessAbsPathInGOPATH(GOPATH, "file.golang")
 	if err != nil {
 		t.Errorf("2. guessAbsPathInGOPATH() error: %s", err)
 	}
-	if absPath != cwd+sep+"test_data"+sep+"src"+sep+"file.golang" {
+	if absPath != cwd+sep+"testdata"+sep+"src"+sep+"file.golang" {
 		t.Errorf("3. guessAbsPathInGOPATH() empty GOPATH")
 	}
 
-	GOPATH = cwd + sep + "test_data" + string(os.PathListSeparator) + "/tmp"
+	GOPATH = cwd + sep + "testdata" + string(os.PathListSeparator) + "/tmp"
 	absPath, err = guessAbsPathInGOPATH(GOPATH, "file.golang")
 	if err != nil {
 		t.Errorf("4. guessAbsPathInGOPATH() error: %s", err)
 	}
-	if absPath != cwd+sep+"test_data"+sep+"src"+sep+"file.golang" {
+	if absPath != cwd+sep+"testdata"+sep+"src"+sep+"file.golang" {
 		t.Errorf("5. guessAbsPathInGOPATH() empty GOPATH")
 	}
 

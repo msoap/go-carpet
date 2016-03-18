@@ -1,5 +1,5 @@
-[33m./test_data/file_01.golang - 100.0%[0m
-[90m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[33m./testdata/file_01.golang - 100.0%[0m
+[90m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
 package main
 
 // isStringInSlice - one of the elements of the array contained in the string

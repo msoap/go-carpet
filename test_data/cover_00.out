@@ -1,5 +1,0 @@
-mode: count
-_./test_data/file_00.golang:4.2,4.38 1 2
-_./test_data/file_00.golang:5.2,5.17 0 0
-_./test_data/file_01.golang:5.28,9.3 1 1
-_./test_data/file_01.golang:10.2,10.14 0 0

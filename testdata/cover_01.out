@@ -1,0 +1,2 @@
+mode: count
+_./testdata/file_not_exists.golang:4.2,4.38 1 2
