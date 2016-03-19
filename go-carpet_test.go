@@ -66,7 +66,7 @@ func Test_getDirsWithTests(t *testing.T) {
 		t.Errorf("getDirsWithTests(): dir list is empty")
 	}
 	dirs = getDirsWithTests(false, ".", ".")
-	if len(dirs) != 5 {
+	if len(dirs) != 1 {
 		t.Errorf("getDirsWithTests(): the same directory failed")
 	}
 

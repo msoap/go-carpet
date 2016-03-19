@@ -24,6 +24,9 @@ var (
 	reNewLine = regexp.MustCompile("\n")
 	// vendors directories for skip
 	vendorDirs = []string{"Godeps", "vendor", ".vendor", "_vendor"}
+
+	// directories for skip
+	skipDirs = []string{"testdata"}
 )
 
 func getDirsWithTests(includeVendor bool, roots ...string) []string {
@@ -43,7 +46,7 @@ func getDirsWithTests(includeVendor bool, roots ...string) []string {
 
 	result := make([]string, 0, len(dirs))
 	for dir := range dirs {
-		if !includeVendor && isSliceInStringPrefix(dir, vendorDirs) {
+		if !includeVendor && isSliceInStringPrefix(dir, vendorDirs) || isSliceInStringPrefix(dir, skipDirs) {
 			continue
 		}
 		result = append(result, "./"+dir)
