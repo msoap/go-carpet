@@ -18,6 +18,26 @@ func assertDontPanic(t *testing.T, fn func(), name string) {
 	fn()
 }
 
+// usage:
+//     defer testChdir(t, "/path")()
+func testChdir(t *testing.T, dir string) func() {
+	cwd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := os.Chdir(dir); err != nil {
+		t.Fatal(err)
+	}
+
+	return func() {
+		err := os.Chdir(cwd)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
 func Test_readFile(t *testing.T) {
 	file, err := readFile("go-carpet_test.go")
 	if err != nil {
@@ -50,8 +70,7 @@ func Test_getDirsWithTests(t *testing.T) {
 		t.Errorf("getDirsWithTests(): the same directory failed")
 	}
 
-	cwd, _ := os.Getwd()
-	os.Chdir("./testdata")
+	defer testChdir(t, "./testdata")()
 	dirs = getDirsWithTests(false, ".")
 	if len(dirs) != 1 {
 		t.Errorf("getDirsWithTests(): without vendor dirs")
@@ -61,7 +80,6 @@ func Test_getDirsWithTests(t *testing.T) {
 	if len(dirs) != 4 {
 		t.Errorf("getDirsWithTests(): with vendor dirs")
 	}
-	os.Chdir(cwd)
 }
 
 func Test_getTempFileName(t *testing.T) {
@@ -76,13 +94,11 @@ func Test_getTempFileName(t *testing.T) {
 	}
 
 	// on RO-dir
-	cwd, _ := os.Getwd()
-	os.Chdir("/")
+	defer testChdir(t, "/")()
 	_, err = getTempFileName()
 	if err == nil {
 		t.Errorf("getTempFileName() not got error")
 	}
-	os.Chdir(cwd)
 }
 
 func Test_isSliceInString(t *testing.T) {
