@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/mgutz/ansi"
@@ -291,24 +292,23 @@ func Test_guessAbsPathInGOPATH(t *testing.T) {
 		t.Errorf("1. guessAbsPathInGOPATH() empty GOPATH")
 	}
 
-	sep := string(os.PathSeparator)
 	cwd, _ := os.Getwd()
 
-	GOPATH = cwd + sep + "testdata"
+	GOPATH = filepath.Join(cwd, "testdata")
 	absPath, err = guessAbsPathInGOPATH(GOPATH, "file.golang")
 	if err != nil {
 		t.Errorf("2. guessAbsPathInGOPATH() error: %s", err)
 	}
-	if absPath != cwd+sep+"testdata"+sep+"src"+sep+"file.golang" {
+	if absPath != filepath.Join(cwd, "testdata", "src", "file.golang") {
 		t.Errorf("3. guessAbsPathInGOPATH() empty GOPATH")
 	}
 
-	GOPATH = cwd + sep + "testdata" + string(os.PathListSeparator) + "/tmp"
+	GOPATH = filepath.Join(cwd, "testdata") + string(os.PathListSeparator) + "/tmp"
 	absPath, err = guessAbsPathInGOPATH(GOPATH, "file.golang")
 	if err != nil {
 		t.Errorf("4. guessAbsPathInGOPATH() error: %s", err)
 	}
-	if absPath != cwd+sep+"testdata"+sep+"src"+sep+"file.golang" {
+	if absPath != filepath.Join(cwd, "testdata", "src", "file.golang") {
 		t.Errorf("5. guessAbsPathInGOPATH() empty GOPATH")
 	}
 

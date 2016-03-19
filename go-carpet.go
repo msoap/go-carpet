@@ -130,7 +130,7 @@ func guessAbsPathInGOPATH(GOPATH, relPath string) (absPath string, err error) {
 
 	gopathChunks := strings.Split(GOPATH, string(os.PathListSeparator))
 	for _, gopathChunk := range gopathChunks {
-		guessAbsPath := strings.Join([]string{gopathChunk, "src", relPath}, string(os.PathSeparator))
+		guessAbsPath := filepath.Join(gopathChunk, "src", relPath)
 		if _, err = os.Stat(guessAbsPath); err == nil {
 			absPath = guessAbsPath
 			break
