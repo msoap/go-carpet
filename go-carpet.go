@@ -266,16 +266,26 @@ func getTempFileName() (string, error) {
 	return tmpFile.Name(), nil
 }
 
-func main() {
-	filesFilter, colors256, includeVendor := "", false, false
-	flag.StringVar(&filesFilter, "file", "", "comma separated list of files to test (default: all)")
-	flag.BoolVar(&colors256, "256colors", false, "use more colors on 256-color terminal (indicate the level of coverage)")
-	flag.BoolVar(&includeVendor, "include-vendor", false, "include vendor directories for show coverage (Godeps, vendor)")
+var (
+	config struct {
+		filesFilter   string
+		colors256     bool
+		includeVendor bool
+	}
+)
+
+func init() {
+	flag.StringVar(&config.filesFilter, "file", "", "comma separated list of files to test (default: all)")
+	flag.BoolVar(&config.colors256, "256colors", false, "use more colors on 256-color terminal (indicate the level of coverage)")
+	flag.BoolVar(&config.includeVendor, "include-vendor", false, "include vendor directories for show coverage (Godeps, vendor)")
 	flag.Usage = func() {
 		fmt.Println(usageMessage)
 		flag.PrintDefaults()
 		os.Exit(0)
 	}
+}
+
+func main() {
 	flag.Parse()
 	testDirs := flag.Args()
 
@@ -288,9 +298,9 @@ func main() {
 	allProfileBlocks := []cover.ProfileBlock{}
 
 	if len(testDirs) > 0 {
-		testDirs = getDirsWithTests(includeVendor, testDirs...)
+		testDirs = getDirsWithTests(config.includeVendor, testDirs...)
 	} else {
-		testDirs = getDirsWithTests(includeVendor, ".")
+		testDirs = getDirsWithTests(config.includeVendor, ".")
 	}
 	for _, path := range testDirs {
 		err := runGoTest(path, coverFileName, false)
@@ -299,7 +309,7 @@ func main() {
 			continue
 		}
 
-		coverInBytes, profileBlocks, err := getCoverForDir(path, coverFileName, strings.Split(filesFilter, ","), colors256)
+		coverInBytes, profileBlocks, err := getCoverForDir(path, coverFileName, strings.Split(config.filesFilter, ","), config.colors256)
 		if err != nil {
 			log.Print(err)
 			continue
