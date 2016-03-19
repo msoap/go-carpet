@@ -56,7 +56,8 @@ TODO
 See also
 --------
 
-  * [The cover story (blog.golang.org)](https://blog.golang.org/cover)
-  * [gocover.io - simple Go test coverage service](https://gocover.io)
-  * [coveralls.io - test coverage service](https://coveralls.io)
-  * [Package cover](https://godoc.org/golang.org/x/tools/cover)
+  * [blog.golang.org](https://blog.golang.org/cover) - the cover story
+  * [gocover.io](https://gocover.io) - simple Go test coverage service
+  * [coveralls.io](https://coveralls.io) - test coverage service
+  * [package cover](https://godoc.org/golang.org/x/tools/cover) - golang.org/x/tools/cover
+  * [gotests](https://github.com/cweill/gotests) - Go commandline tool that generates table driven tests
