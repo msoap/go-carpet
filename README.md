@@ -38,7 +38,8 @@ Usage
     go-carpet [-options] [paths]
     options:
         -256colors - use more colors on 256-color terminal (indicate the level of coverage)
-        -file string - comma separated list of files to test (default: all)
+        -file string - comma-separated list of files to test (default: all)
+        -func string - comma-separated functions list (default: all functions)
         -include-vendor - include vendor directories for show coverage (Godeps, vendor)
 
 For view in less, use `-R` option:
@@ -47,11 +48,6 @@ For view in less, use `-R` option:
 
 ###Screenshot
 <img width="662" alt="screen shot 2016-03-06" src="https://cloud.githubusercontent.com/assets/844117/13554107/e6c7c82a-e3a7-11e5-82d6-3481f1fead11.png">
-
-TODO
-----
-
-  * option `-func` for filter by functions
 
 See also
 --------

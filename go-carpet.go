@@ -272,13 +272,15 @@ func getTempFileName() (string, error) {
 var (
 	config struct {
 		filesFilter   string
+		funcFilter    string
 		colors256     bool
 		includeVendor bool
 	}
 )
 
 func init() {
-	flag.StringVar(&config.filesFilter, "file", "", "comma separated list of files to test (default: all)")
+	flag.StringVar(&config.filesFilter, "file", "", "comma-separated list of files to test (default: all)")
+	flag.StringVar(&config.funcFilter, "func", "", "comma-separated functions list (default: all functions)")
 	flag.BoolVar(&config.colors256, "256colors", false, "use more colors on 256-color terminal (indicate the level of coverage)")
 	flag.BoolVar(&config.includeVendor, "include-vendor", false, "include vendor directories for show coverage (Godeps, vendor)")
 	flag.Usage = func() {
