@@ -8,13 +8,13 @@ import (
 )
 
 func Test_getCoverForDir(t *testing.T) {
-	bytes, _, err := getCoverForDir("./testdata", "./testdata/not_exists.out", []string{}, false)
+	bytes, _, err := getCoverForDir("./testdata", "./testdata/not_exists.out", []string{}, Config{colors256: false})
 	if err == nil {
 		t.Errorf("1. getCoverForDir() error failed")
 	}
 
 	// ---
-	bytes, _, err = getCoverForDir("./testdata", "./testdata/cover_00.out", []string{}, false)
+	bytes, _, err = getCoverForDir("./testdata", "./testdata/cover_00.out", []string{}, Config{colors256: false})
 	if err != nil {
 		t.Errorf("2. getCoverForDir() failed")
 	}
@@ -27,7 +27,7 @@ func Test_getCoverForDir(t *testing.T) {
 	}
 
 	// ---
-	bytes, _, err = getCoverForDir("./testdata", "./testdata/cover_00.out", []string{}, true)
+	bytes, _, err = getCoverForDir("./testdata", "./testdata/cover_00.out", []string{}, Config{colors256: true})
 	if err != nil {
 		t.Errorf("5. getCoverForDir() failed")
 	}
@@ -40,13 +40,13 @@ func Test_getCoverForDir(t *testing.T) {
 	}
 
 	// ---
-	bytes, _, err = getCoverForDir("./testdata", "./testdata/cover_01.out", []string{}, true)
+	bytes, _, err = getCoverForDir("./testdata", "./testdata/cover_01.out", []string{}, Config{colors256: true})
 	if err == nil {
 		t.Errorf("8. getCoverForDir() not exists go file")
 	}
 
 	// ---
-	bytes, _, err = getCoverForDir("./testdata", "./testdata/cover_00.out", []string{"file_01.go"}, false)
+	bytes, _, err = getCoverForDir("./testdata", "./testdata/cover_00.out", []string{"file_01.go"}, Config{colors256: false})
 	if err != nil {
 		t.Errorf("9. getCoverForDir() failed")
 	}
@@ -59,7 +59,7 @@ func Test_getCoverForDir(t *testing.T) {
 	}
 
 	// ---
-	bytes, _, err = getCoverForDir("./testdata", "./testdata/cover_02.out", []string{}, false)
+	bytes, _, err = getCoverForDir("./testdata", "./testdata/cover_02.out", []string{}, Config{colors256: false})
 	if err != nil {
 		t.Errorf("12. getCoverForDir() failed")
 	}

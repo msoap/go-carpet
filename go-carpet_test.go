@@ -254,7 +254,7 @@ func Test_getCoverForFile(t *testing.T) {
 	}
 	fileContent := []byte("1 line\n123 green 456\n3 line red and other")
 
-	coloredBytes := getCoverForFile(fileProfile, fileContent, false)
+	coloredBytes := getCoverForFile(fileProfile, fileContent, Config{colors256: false})
 	expectOut := getColorHeader("filename.go - 100.0%", true) +
 		"1 line\n" +
 		"123 " + ansi.ColorCode("green") + "green" + ansi.ColorCode("reset") + " 456\n" +
@@ -274,7 +274,7 @@ func Test_getCoverForFile(t *testing.T) {
 			Count:     0,
 		},
 	)
-	coloredBytes = getCoverForFile(fileProfile, fileContent, false)
+	coloredBytes = getCoverForFile(fileProfile, fileContent, Config{colors256: false})
 	expectOut = getColorHeader("filename.go - 100.0%", true) +
 		"1 line\n" +
 		"123 " + ansi.ColorCode("green") + "green" + ansi.ColorCode("reset") + " 456\n" +
@@ -284,7 +284,7 @@ func Test_getCoverForFile(t *testing.T) {
 	}
 
 	// 256 colors
-	coloredBytes = getCoverForFile(fileProfile, fileContent, true)
+	coloredBytes = getCoverForFile(fileProfile, fileContent, Config{colors256: true})
 	expectOut = getColorHeader("filename.go - 100.0%", true) +
 		"1 line\n" +
 		"123 " + ansi.ColorCode("48") + "green" + ansi.ColorCode("reset") + " 456\n" +

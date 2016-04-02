@@ -146,7 +146,7 @@ func guessAbsPathInGOPATH(GOPATH, relPath string) (absPath string, err error) {
 	return absPath, err
 }
 
-func getCoverForDir(path string, coverFileName string, filesFilter []string, colors256 bool) (result []byte, profileBlocks []cover.ProfileBlock, err error) {
+func getCoverForDir(path string, coverFileName string, filesFilter []string, config Config) (result []byte, profileBlocks []cover.ProfileBlock, err error) {
 	coverProfile, err := cover.ParseProfiles(coverFileName)
 	if err != nil {
 		return result, profileBlocks, err
@@ -179,7 +179,7 @@ func getCoverForDir(path string, coverFileName string, filesFilter []string, col
 			return result, profileBlocks, err
 		}
 
-		result = append(result, getCoverForFile(fileProfile, fileBytes, colors256)...)
+		result = append(result, getCoverForFile(fileProfile, fileBytes, config)...)
 		profileBlocks = append(profileBlocks, fileProfile.Blocks...)
 	}
 
@@ -217,7 +217,7 @@ func getStatForProfileBlocks(fileProfileBlocks []cover.ProfileBlock) (stat float
 	return stat
 }
 
-func getCoverForFile(fileProfile *cover.Profile, fileBytes []byte, colors256 bool) (result []byte) {
+func getCoverForFile(fileProfile *cover.Profile, fileBytes []byte, config Config) (result []byte) {
 	stat := getStatForProfileBlocks(fileProfile.Blocks)
 	fileNameDisplay := fmt.Sprintf("%s - %.1f%%", strings.TrimLeft(fileProfile.FileName, "_"), stat)
 	result = append(result, []byte(getColorHeader(fileNameDisplay, true))...)
@@ -239,7 +239,7 @@ func getCoverForFile(fileProfile *cover.Profile, fileBytes []byte, colors256 boo
 		switch {
 		case boundary.Start && boundary.Count > 0:
 			coverColor = ansi.ColorCode("green")
-			if colors256 {
+			if config.colors256 {
 				coverColor = ansi.ColorCode(getShadeOfGreen(boundary.Norm))
 			}
 		case boundary.Start && boundary.Count == 0:
@@ -269,18 +269,21 @@ func getTempFileName() (string, error) {
 	return tmpFile.Name(), nil
 }
 
-var (
-	config struct {
-		filesFilter   string
-		funcFilter    string
-		colors256     bool
-		includeVendor bool
-	}
-)
+// Config - application config
+type Config struct {
+	filesFilterRaw string
+	filesFilter    []string
+	funcFilterRaw  string
+	funcFilter     []string
+	colors256      bool
+	includeVendor  bool
+}
+
+var config Config
 
 func init() {
-	flag.StringVar(&config.filesFilter, "file", "", "comma-separated list of files to test (default: all)")
-	flag.StringVar(&config.funcFilter, "func", "", "comma-separated functions list (default: all functions)")
+	flag.StringVar(&config.filesFilterRaw, "file", "", "comma-separated list of files to test (default: all)")
+	flag.StringVar(&config.funcFilterRaw, "func", "", "comma-separated functions list (default: all functions)")
 	flag.BoolVar(&config.colors256, "256colors", false, "use more colors on 256-color terminal (indicate the level of coverage)")
 	flag.BoolVar(&config.includeVendor, "include-vendor", false, "include vendor directories for show coverage (Godeps, vendor)")
 	flag.Usage = func() {
@@ -292,6 +295,9 @@ func init() {
 
 func main() {
 	flag.Parse()
+	config.filesFilter = strings.Split(config.filesFilterRaw, ",")
+	config.funcFilter = strings.Split(config.funcFilterRaw, ",")
+
 	testDirs := flag.Args()
 
 	coverFileName, err := getTempFileName()
@@ -314,7 +320,7 @@ func main() {
 			continue
 		}
 
-		coverInBytes, profileBlocks, err := getCoverForDir(path, coverFileName, strings.Split(config.filesFilter, ","), config.colors256)
+		coverInBytes, profileBlocks, err := getCoverForDir(path, coverFileName, config.filesFilter, config)
 		if err != nil {
 			log.Print(err)
 			continue
