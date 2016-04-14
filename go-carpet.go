@@ -345,13 +345,20 @@ func main() {
 			log.Print(err)
 			continue
 		}
-		stdOut.Write(coverInBytes)
+		_, err = stdOut.Write(coverInBytes)
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		allProfileBlocks = append(allProfileBlocks, profileBlocks...)
 	}
 
 	if len(allProfileBlocks) > 0 {
 		stat := getStatForProfileBlocks(allProfileBlocks)
 		totalCoverage := fmt.Sprintf("Coverage: %.1f%% of statements", stat)
-		stdOut.Write([]byte(getColorHeader(totalCoverage, false)))
+		_, err = stdOut.Write([]byte(getColorHeader(totalCoverage, false)))
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
