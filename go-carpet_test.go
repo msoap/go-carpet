@@ -57,27 +57,27 @@ func Test_readFile(t *testing.T) {
 }
 
 func Test_getDirsWithTests(t *testing.T) {
-	dirs := getDirsWithTests(false, ".")
-	if len(dirs) == 0 {
+	dirs, err := getDirsWithTests(false, ".")
+	if len(dirs) == 0 || err != nil {
 		t.Errorf("getDirsWithTests(): dir list is empty")
 	}
-	dirs = getDirsWithTests(false)
-	if len(dirs) == 0 {
+	dirs, err = getDirsWithTests(false)
+	if len(dirs) == 0 || err != nil {
 		t.Errorf("getDirsWithTests(): dir list is empty")
 	}
-	dirs = getDirsWithTests(false, ".", ".")
-	if len(dirs) != 1 {
+	dirs, err = getDirsWithTests(false, ".", ".")
+	if len(dirs) != 1 || err != nil {
 		t.Errorf("getDirsWithTests(): the same directory failed")
 	}
 
 	defer testChdir(t, "./testdata")()
-	dirs = getDirsWithTests(false, ".")
-	if len(dirs) != 1 {
+	dirs, err = getDirsWithTests(false, ".")
+	if len(dirs) != 1 || err != nil {
 		t.Errorf("getDirsWithTests(): without vendor dirs")
 	}
 
-	dirs = getDirsWithTests(true, ".")
-	if len(dirs) != 4 {
+	dirs, err = getDirsWithTests(true, ".")
+	if len(dirs) != 4 || err != nil {
 		t.Errorf("getDirsWithTests(): with vendor dirs")
 	}
 }

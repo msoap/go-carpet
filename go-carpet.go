@@ -29,29 +29,33 @@ var (
 	skipDirs = []string{"testdata"}
 )
 
-func getDirsWithTests(includeVendor bool, roots ...string) []string {
+func getDirsWithTests(includeVendor bool, roots ...string) (result []string, err error) {
 	if len(roots) == 0 {
 		roots = []string{"."}
 	}
 
 	dirs := map[string]struct{}{}
 	for _, root := range roots {
-		filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		err = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 			if strings.HasSuffix(path, "_test.go") {
 				dirs[filepath.Dir(path)] = struct{}{}
 			}
 			return nil
 		})
+		if err != nil {
+			return result, err
+		}
 	}
 
-	result := make([]string, 0, len(dirs))
+	result = make([]string, 0, len(dirs))
 	for dir := range dirs {
 		if !includeVendor && isSliceInStringPrefix(dir, vendorDirs) || isSliceInStringPrefix(dir, skipDirs) {
 			continue
 		}
 		result = append(result, "./"+dir)
 	}
-	return result
+
+	return result, nil
 }
 
 func readFile(fileName string) (result []byte, err error) {
@@ -309,10 +313,14 @@ func main() {
 	allProfileBlocks := []cover.ProfileBlock{}
 
 	if len(testDirs) > 0 {
-		testDirs = getDirsWithTests(config.includeVendor, testDirs...)
+		testDirs, err = getDirsWithTests(config.includeVendor, testDirs...)
 	} else {
-		testDirs = getDirsWithTests(config.includeVendor, ".")
+		testDirs, err = getDirsWithTests(config.includeVendor, ".")
 	}
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	for _, path := range testDirs {
 		err := runGoTest(path, coverFileName, false)
 		if err != nil {
