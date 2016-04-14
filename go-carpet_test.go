@@ -87,7 +87,12 @@ func Test_getTempFileName(t *testing.T) {
 	if err != nil {
 		t.Errorf("getTempFileName() got error")
 	}
-	defer os.RemoveAll(tmpFileName)
+	defer func() {
+		err = os.RemoveAll(tmpFileName)
+		if err != nil {
+			t.Errorf("getTempFileName() RemoveAll failed")
+		}
+	}()
 
 	if len(tmpFileName) == 0 {
 		t.Errorf("getTempFileName() failed")

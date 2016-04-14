@@ -63,9 +63,12 @@ func readFile(fileName string) (result []byte, err error) {
 	if err != nil {
 		return result, err
 	}
-	defer fileReader.Close()
 
 	result, err = ioutil.ReadAll(fileReader)
+	if err == nil {
+		err = fileReader.Close()
+	}
+
 	return result, err
 }
 
@@ -268,7 +271,10 @@ func getTempFileName() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	tmpFile.Close()
+	err = tmpFile.Close()
+	if err != nil {
+		return "", err
+	}
 
 	return tmpFile.Name(), nil
 }
@@ -308,7 +314,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer os.RemoveAll(coverFileName)
+	defer func() {
+		err = os.RemoveAll(coverFileName)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
+
 	stdOut := getColorWriter()
 	allProfileBlocks := []cover.ProfileBlock{}
 
