@@ -1,20 +1,28 @@
 language: go
 sudo: false
 
+env:
+  global:
+    - CURRENT_GO_VERSION="1.6.2"
+
 go:
   - 1.5.3
-  - 1.6
+  - 1.6.2
   - tip
 
 before_install:
   - go get github.com/mattn/goveralls
   - go get golang.org/x/tools/cmd/cover
+  - go get github.com/kisielk/errcheck
 
 install: go get -t ./...
 
 script:
   - go test -v ./...
-  - if [ "$TRAVIS_GO_VERSION" = "1.6" ]; then go test -race -v ./...; fi
+  - if [ "$TRAVIS_GO_VERSION" = "$CURRENT_GO_VERSION" ]; then go test -race -v ./...; fi
   - go vet ./...
+  - errcheck ./...
   - diff <(gofmt -d .) <(echo -n "")
-  - if [ "$TRAVIS_GO_VERSION" = "1.6" ]; then $HOME/gopath/bin/goveralls -service=travis-ci || true; fi
+  - if [ "$TRAVIS_GO_VERSION" = "$CURRENT_GO_VERSION" ]; then
+      $HOME/gopath/bin/goveralls -service=travis-ci || true;
+    fi
