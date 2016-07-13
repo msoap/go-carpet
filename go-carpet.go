@@ -72,26 +72,6 @@ func readFile(fileName string) (result []byte, err error) {
 	return result, err
 }
 
-// isSliceInString - one of the elements of the array contained in the string
-func isSliceInString(src string, slice []string) bool {
-	for _, dst := range slice {
-		if strings.Contains(src, dst) {
-			return true
-		}
-	}
-	return false
-}
-
-// isSliceInStringPrefix - one of the elements of the array is are prefix in the string
-func isSliceInStringPrefix(src string, slice []string) bool {
-	for _, dst := range slice {
-		if strings.HasPrefix(src, dst) {
-			return true
-		}
-	}
-	return false
-}
-
 func getShadeOfGreen(normCover float64) string {
 	/*
 		Get all colors for 255-colors terminal:

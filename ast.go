@@ -36,12 +36,3 @@ func getGolangFuncs(fileContent []byte) (result []Func, err error) {
 
 	return result, nil
 }
-
-func grepEmptyStringSlice(inSlice []string) (result []string) {
-	for _, item := range inSlice {
-		if len(item) > 0 {
-			result = append(result, item)
-		}
-	}
-	return result
-}
