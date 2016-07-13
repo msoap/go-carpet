@@ -23,7 +23,8 @@ func isSliceInStringPrefix(src string, slice []string) bool {
 }
 
 // grepEmptyStringSlice - return slice with non-empty strings
-func grepEmptyStringSlice(inSlice []string) (result []string) {
+func grepEmptyStringSlice(inSlice []string) []string {
+	result := []string{}
 	for _, item := range inSlice {
 		if len(item) > 0 {
 			result = append(result, item)

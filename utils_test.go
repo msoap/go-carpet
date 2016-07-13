@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
 
 func Test_isSliceInString(t *testing.T) {
 	testData := []struct {
@@ -70,6 +73,46 @@ func Test_isSliceInStringPrefix(t *testing.T) {
 		result := isSliceInStringPrefix(item.src, item.slice)
 		if result != item.result {
 			t.Errorf("\n%d. isSliceInStringPrefix()\nexpected: %v\nreal     :%v", i, item.result, result)
+		}
+	}
+}
+
+func Test_grepEmptyStringSlice(t *testing.T) {
+	testData := []struct {
+		inSlice []string
+		result  []string
+	}{
+		{
+			inSlice: []string{},
+			result:  []string{},
+		},
+		{
+			inSlice: nil,
+			result:  []string{},
+		},
+		{
+			inSlice: []string{""},
+			result:  []string{},
+		},
+		{
+			inSlice: []string{"A", "B"},
+			result:  []string{"A", "B"},
+		},
+		{
+			inSlice: []string{"A", "", "B"},
+			result:  []string{"A", "B"},
+		},
+		{
+			inSlice: []string{"", "", "B"},
+			result:  []string{"B"},
+		},
+	}
+
+	for i, item := range testData {
+		result := grepEmptyStringSlice(item.inSlice)
+
+		if !reflect.DeepEqual(result, item.result) {
+			t.Errorf("\n%d. grepEmptyStringSlice()\nexpected: %#v\nreal     :%#v", i, item.result, result)
 		}
 	}
 }
