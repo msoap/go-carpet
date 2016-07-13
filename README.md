@@ -57,3 +57,4 @@ See also
   * [coveralls.io](https://coveralls.io) - test coverage service
   * [package cover](https://godoc.org/golang.org/x/tools/cover) - golang.org/x/tools/cover
   * [gotests](https://github.com/cweill/gotests) - Go commandline tool that generates table driven tests
+  * [docker-golang-checks](https://github.com/msoap/docker-golang-checks) - Go-code checks Docker image
