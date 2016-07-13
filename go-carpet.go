@@ -226,44 +226,95 @@ func getStatForProfileBlocks(fileProfileBlocks []cover.ProfileBlock) (stat float
 
 func getCoverForFile(fileProfile *cover.Profile, fileBytes []byte, config Config) (result []byte) {
 	stat := getStatForProfileBlocks(fileProfile.Blocks)
-	fileNameDisplay := fmt.Sprintf("%s - %.1f%%", strings.TrimLeft(fileProfile.FileName, "_"), stat)
+
+	textRanges, err := getFileFuncRanges(fileBytes, config.funcFilter)
+	if err != nil {
+		return result
+	}
+
+	fileNameDisplay := ""
+	if len(config.funcFilter) == 0 {
+		fileNameDisplay = fmt.Sprintf("%s - %.1f%%", strings.TrimLeft(fileProfile.FileName, "_"), stat)
+	} else {
+		fileNameDisplay = strings.TrimLeft(fileProfile.FileName, "_")
+	}
+
 	result = append(result, []byte(getColorHeader(fileNameDisplay, true))...)
 
 	boundaries := fileProfile.Boundaries(fileBytes)
-	curOffset := 0
-	coverColor := ""
 
-	for _, boundary := range boundaries {
-		if boundary.Offset > curOffset {
-			nextChunk := fileBytes[curOffset:boundary.Offset]
-			// Add ansi color code in begin of each line (this fixed view in "less -R")
-			if coverColor != "" && coverColor != ansi.ColorCode("reset") {
-				nextChunk = reNewLine.ReplaceAllLiteral(nextChunk, []byte(ansi.ColorCode("reset")+"\n"+coverColor))
+	for _, textRange := range textRanges {
+		fileBytesPart := fileBytes[textRange.begin:textRange.end]
+		curOffset := 0
+		coverColor := ""
+
+		for _, boundary := range boundaries {
+			boundaryOffset := boundary.Offset - textRange.begin
+
+			if boundaryOffset > curOffset {
+				nextChunk := fileBytesPart[curOffset:boundaryOffset]
+				// Add ansi color code in begin of each line (this fixed view in "less -R")
+				if coverColor != "" && coverColor != ansi.ColorCode("reset") {
+					nextChunk = reNewLine.ReplaceAllLiteral(nextChunk, []byte(ansi.ColorCode("reset")+"\n"+coverColor))
+				}
+				result = append(result, nextChunk...)
 			}
-			result = append(result, nextChunk...)
+
+			switch {
+			case boundary.Start && boundary.Count > 0:
+				coverColor = ansi.ColorCode("green")
+				if config.colors256 {
+					coverColor = ansi.ColorCode(getShadeOfGreen(boundary.Norm))
+				}
+			case boundary.Start && boundary.Count == 0:
+				coverColor = ansi.ColorCode("red")
+			case !boundary.Start:
+				coverColor = ansi.ColorCode("reset")
+			}
+			result = append(result, []byte(coverColor)...)
+
+			curOffset = boundaryOffset
+		}
+		if curOffset < len(fileBytesPart) {
+			result = append(result, fileBytesPart[curOffset:]...)
 		}
 
-		switch {
-		case boundary.Start && boundary.Count > 0:
-			coverColor = ansi.ColorCode("green")
-			if config.colors256 {
-				coverColor = ansi.ColorCode(getShadeOfGreen(boundary.Norm))
-			}
-		case boundary.Start && boundary.Count == 0:
-			coverColor = ansi.ColorCode("red")
-		case !boundary.Start:
-			coverColor = ansi.ColorCode("reset")
-		}
-		result = append(result, []byte(coverColor)...)
-
-		curOffset = boundary.Offset
-	}
-	if curOffset < len(fileBytes) {
-		result = append(result, fileBytes[curOffset:]...)
+		result = append(result, []byte("\n")...)
 	}
 
-	result = append(result, []byte("\n")...)
 	return result
+}
+
+type textRange struct {
+	begin, end int
+}
+
+func getFileFuncRanges(fileBytes []byte, funcs []string) (result []textRange, err error) {
+	if len(funcs) == 0 {
+		return []textRange{{
+			begin: 0,
+			end:   len(fileBytes),
+		}}, nil
+	}
+
+	golangFuncs, err := getGolangFuncs(fileBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, existsFunc := range golangFuncs {
+		for _, filterFuncName := range funcs {
+			if existsFunc.Name == filterFuncName {
+				result = append(result, textRange{begin: existsFunc.Begin - 1, end: existsFunc.End - 1})
+			}
+		}
+	}
+
+	if len(result) == 0 {
+		return nil, fmt.Errorf("Filter by functions: %v - not found", funcs)
+	}
+
+	return result, nil
 }
 
 func getTempFileName() (string, error) {
@@ -305,8 +356,8 @@ func init() {
 
 func main() {
 	flag.Parse()
-	config.filesFilter = strings.Split(config.filesFilterRaw, ",")
-	config.funcFilter = strings.Split(config.funcFilterRaw, ",")
+	config.filesFilter = grepEmptyStringSlice(strings.Split(config.filesFilterRaw, ","))
+	config.funcFilter = grepEmptyStringSlice(strings.Split(config.funcFilterRaw, ","))
 
 	testDirs := flag.Args()
 
@@ -353,7 +404,7 @@ func main() {
 		allProfileBlocks = append(allProfileBlocks, profileBlocks...)
 	}
 
-	if len(allProfileBlocks) > 0 {
+	if len(allProfileBlocks) > 0 && len(config.funcFilter) == 0 {
 		stat := getStatForProfileBlocks(allProfileBlocks)
 		totalCoverage := fmt.Sprintf("Coverage: %.1f%% of statements", stat)
 		_, err = stdOut.Write([]byte(getColorHeader(totalCoverage, false)))
