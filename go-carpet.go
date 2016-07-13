@@ -229,6 +229,11 @@ func getCoverForFile(fileProfile *cover.Profile, fileBytes []byte, config Config
 		coverColor := ""
 
 		for _, boundary := range boundaries {
+			if boundary.Offset < textRange.begin || boundary.Offset > textRange.end {
+				// skip boundary which is not in filter function
+				continue
+			}
+
 			boundaryOffset := boundary.Offset - textRange.begin
 
 			if boundaryOffset > curOffset {
