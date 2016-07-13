@@ -161,7 +161,8 @@ func getCoverForDir(path string, coverFileName string, filesFilter []string, con
 			continue
 		}
 
-		fileBytes, err := readFile(fileName)
+		fileBytes := []byte{}
+		fileBytes, err = readFile(fileName)
 		if err != nil {
 			return result, profileBlocks, err
 		}
