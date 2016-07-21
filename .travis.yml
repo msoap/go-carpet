@@ -6,7 +6,7 @@ env:
     - CURRENT_GO_VERSION="1.6.3"
 
 go:
-  - 1.5.3
+  - 1.5.4
   - 1.6.3
   - tip
 
