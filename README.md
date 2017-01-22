@@ -30,7 +30,7 @@ Or install from homebrew (OS X):
     brew tap msoap/tools
     brew install go-carpet
     # update:
-    brew update; brew upgrade go-carpet
+    brew upgrade go-carpet
 
 Usage
 -----
