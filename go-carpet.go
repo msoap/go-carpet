@@ -21,7 +21,9 @@ const usageMessage = `go-carpet - show test coverage for Go source files
 usage: go-carpet [options] [paths]`
 
 var (
-	reNewLine = regexp.MustCompile("\n")
+	reNewLine        = regexp.MustCompile("\n")
+	reWindowsPathFix = regexp.MustCompile(`^_\\([A-Z])_`)
+
 	// vendors directories for skip
 	vendorDirs = []string{"Godeps", "vendor", ".vendor", "_vendor"}
 
@@ -147,7 +149,7 @@ func getCoverForDir(path string, coverFileName string, filesFilter []string, con
 				fileName = strings.TrimLeft(fileProfile.FileName, "_")
 			} else {
 				// "_\C_\Users\..." -> "C:\Users\..."
-				fileName = regexp.MustCompile(`^_\\([A-Z])_`).ReplaceAllString(fileProfile.FileName, "$1:")
+				fileName = reWindowsPathFix.ReplaceAllString(fileProfile.FileName, "$1:")
 			}
 		} else {
 			// file in one dir in GOPATH
