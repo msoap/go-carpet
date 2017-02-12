@@ -6,7 +6,7 @@ import (
 	"go/token"
 )
 
-// Func - one go function in source with return information
+// Func - one go function in source
 type Func struct {
 	Name       string
 	Begin, End int
