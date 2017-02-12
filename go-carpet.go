@@ -102,7 +102,7 @@ func getShadeOfGreen(normCover float64) string {
 }
 
 func runGoTest(path string, coverFileName string, hideStderr bool) error {
-	osExec := exec.Command("go", "test", "-coverprofile="+coverFileName, "-covermode=count", path)
+	osExec := exec.Command("go", "test", "-coverprofile="+coverFileName, "-covermode=count", path) // #nosec
 	if !hideStderr {
 		osExec.Stderr = os.Stderr
 	}
@@ -142,7 +142,7 @@ func getCoverForDir(path string, coverFileName string, filesFilter []string, con
 	}
 
 	for _, fileProfile := range coverProfile {
-		fileName := ""
+		var fileName string
 		if strings.HasPrefix(fileProfile.FileName, "_") {
 			// absolute path (or relative in tests)
 			if runtime.GOOS != "windows" {
@@ -163,7 +163,7 @@ func getCoverForDir(path string, coverFileName string, filesFilter []string, con
 			continue
 		}
 
-		fileBytes := []byte{}
+		var fileBytes []byte
 		fileBytes, err = readFile(fileName)
 		if err != nil {
 			return result, profileBlocks, err
@@ -215,7 +215,7 @@ func getCoverForFile(fileProfile *cover.Profile, fileBytes []byte, config Config
 		return result
 	}
 
-	fileNameDisplay := ""
+	var fileNameDisplay string
 	if len(config.funcFilter) == 0 {
 		fileNameDisplay = fmt.Sprintf("%s - %.1f%%", strings.TrimLeft(fileProfile.FileName, "_"), stat)
 	} else {
@@ -373,15 +373,14 @@ func main() {
 	}
 
 	for _, path := range testDirs {
-		err := runGoTest(path, coverFileName, false)
-		if err != nil {
+		if err = runGoTest(path, coverFileName, false); err != nil {
 			log.Print(err)
 			continue
 		}
 
-		coverInBytes, profileBlocks, err := getCoverForDir(path, coverFileName, config.filesFilter, config)
-		if err != nil {
-			log.Print(err)
+		coverInBytes, profileBlocks, errCover := getCoverForDir(path, coverFileName, config.filesFilter, config)
+		if errCover != nil {
+			log.Print(errCover)
 			continue
 		}
 		_, err = stdOut.Write(coverInBytes)
