@@ -1,6 +1,12 @@
 package main
 
-import "strings"
+import (
+	"fmt"
+	"log"
+	"strings"
+
+	shellwords "github.com/mattn/go-shellwords"
+)
 
 // isSliceInString - one of the elements of the array contained in the string
 func isSliceInString(src string, slice []string) bool {
@@ -31,4 +37,27 @@ func grepEmptyStringSlice(inSlice []string) []string {
 		}
 	}
 	return result
+}
+
+// parse additional args for pass to go test
+func parseAdditionalArgs(argsRaw string, excludes []string) (resultArgs []string, err error) {
+	if argsRaw != "" {
+		args, err := shellwords.Parse(argsRaw)
+		if err != nil {
+			return resultArgs, fmt.Errorf("args %q parse failed: %s", argsRaw, err)
+		}
+
+	NEXTARG:
+		for _, arg := range args {
+			for _, exludeArg := range excludes {
+				if exludeArg != "" && strings.HasPrefix(arg, exludeArg) {
+					log.Printf("arg: %q is not allowed, skip", arg)
+					continue NEXTARG
+				}
+			}
+			resultArgs = append(resultArgs, arg)
+		}
+	}
+
+	return resultArgs, nil
 }

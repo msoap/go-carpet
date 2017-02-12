@@ -29,6 +29,10 @@ var (
 
 	// directories for skip
 	skipDirs = []string{"testdata"}
+
+	// predefined go test options
+	goTestCoverProfile = "-coverprofile"
+	goTestCoverMode    = "-covermode"
 )
 
 func getDirsWithTests(includeVendor bool, roots ...string) (result []string, err error) {
@@ -101,13 +105,16 @@ func getShadeOfGreen(normCover float64) string {
 	return tenShadesOfGreen[index]
 }
 
-func runGoTest(path string, coverFileName string, hideStderr bool) error {
-	osExec := exec.Command("go", "test", "-coverprofile="+coverFileName, "-covermode=count", path) // #nosec
+func runGoTest(path string, coverFileName string, goTestArgs []string, hideStderr bool) error {
+	args := []string{"test", goTestCoverProfile + "=" + coverFileName, goTestCoverMode + "=count"}
+	args = append(args, goTestArgs...)
+	args = append(args, path)
+	osExec := exec.Command("go", args...) // #nosec
 	if !hideStderr {
 		osExec.Stderr = os.Stderr
 	}
-	output, err := osExec.Output()
-	if err != nil {
+
+	if output, err := osExec.Output(); err != nil {
 		fmt.Print(string(output))
 		return err
 	}
@@ -324,6 +331,7 @@ type Config struct {
 	filesFilter    []string
 	funcFilterRaw  string
 	funcFilter     []string
+	argsRaw        string
 	colors256      bool
 	includeVendor  bool
 }
@@ -335,6 +343,7 @@ func init() {
 	flag.StringVar(&config.funcFilterRaw, "func", "", "comma-separated functions list (default: all functions)")
 	flag.BoolVar(&config.colors256, "256colors", false, "use more colors on 256-color terminal (indicate the level of coverage)")
 	flag.BoolVar(&config.includeVendor, "include-vendor", false, "include vendor directories for show coverage (Godeps, vendor)")
+	flag.StringVar(&config.argsRaw, "args", "", "pass additional arguments for go test")
 	flag.Usage = func() {
 		fmt.Println(usageMessage)
 		flag.PrintDefaults()
@@ -346,6 +355,10 @@ func main() {
 	flag.Parse()
 	config.filesFilter = grepEmptyStringSlice(strings.Split(config.filesFilterRaw, ","))
 	config.funcFilter = grepEmptyStringSlice(strings.Split(config.funcFilterRaw, ","))
+	additionalArgs, err := parseAdditionalArgs(config.argsRaw, []string{goTestCoverProfile, goTestCoverMode})
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	testDirs := flag.Args()
 
@@ -373,7 +386,7 @@ func main() {
 	}
 
 	for _, path := range testDirs {
-		if err = runGoTest(path, coverFileName, false); err != nil {
+		if err = runGoTest(path, coverFileName, additionalArgs, false); err != nil {
 			log.Print(err)
 			continue
 		}
