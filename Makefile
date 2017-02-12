@@ -11,3 +11,9 @@ run:
 
 update-from-github:
 	go get -u github.com/msoap/go-carpet
+
+gometalinter:
+	gometalinter --vendor --cyclo-over=20 --line-length=150 --dupl-threshold=150 --min-occurrences=2 --enable=misspell --deadline=10m ./...
+
+generate-manpage:
+	docker run -it --rm -v $$PWD:/app -w /app ruby-ronn sh -c 'cat README.md | grep -v "^\[" | grep -v Screenshot > go-carpet.md; ronn go-carpet.md; mv ./go-carpet ./go-carpet.1; rm ./go-carpet.html ./go-carpet.md'
