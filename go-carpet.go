@@ -16,9 +16,17 @@ import (
 	"golang.org/x/tools/cover"
 )
 
-const usageMessage = `go-carpet - show test coverage for Go source files
+const (
+	usageMessage = `go-carpet - show test coverage for Go source files
 
 usage: go-carpet [options] [paths]`
+
+	appVersion = "1.5"
+
+	// predefined go test options
+	goTestCoverProfile = "-coverprofile"
+	goTestCoverMode    = "-covermode"
+)
 
 var (
 	reNewLine        = regexp.MustCompile("\n")
@@ -29,10 +37,6 @@ var (
 
 	// directories for skip
 	skipDirs = []string{"testdata"}
-
-	// predefined go test options
-	goTestCoverProfile = "-coverprofile"
-	goTestCoverMode    = "-covermode"
 )
 
 func getDirsWithTests(includeVendor bool, roots ...string) (result []string, err error) {
@@ -352,7 +356,14 @@ func init() {
 }
 
 func main() {
+	versionFl := flag.Bool("version", false, "get version")
 	flag.Parse()
+
+	if *versionFl {
+		fmt.Println(appVersion)
+		os.Exit(0)
+	}
+
 	config.filesFilter = grepEmptyStringSlice(strings.Split(config.filesFilterRaw, ","))
 	config.funcFilter = grepEmptyStringSlice(strings.Split(config.funcFilterRaw, ","))
 	additionalArgs, err := parseAdditionalArgs(config.argsRaw, []string{goTestCoverProfile, goTestCoverMode})

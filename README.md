@@ -42,6 +42,7 @@ Usage
         -func string - comma-separated functions list (default: all functions)
         -include-vendor - include vendor directories for show coverage (Godeps, vendor)
         -args - pass additional arguments for go test (for example "-short" or "-i -timeout t")
+        -version - get version
 
 For view in less, use `-R` option:
 
