@@ -24,3 +24,25 @@ script:
   - if [[ $TRAVIS_GO_VERSION =~ $CURRENT_GO_VERSION ]]; then
       gocoverage && goveralls -coverprofile=profile.cov -service=travis-ci || true;
     fi
+
+before_deploy:
+  - curl -SL https://raw.githubusercontent.com/msoap/etc/master/golang-cross-build/golang-cross-build.sh > $GOPATH/bin/golang-cross-build.sh
+  - chmod 700 $GOPATH/bin/golang-cross-build.sh
+  - GOOS=windows go get -t ./...
+  - golang-cross-build.sh go-carpet
+  - ls -l *.zip *.tar.gz
+
+deploy:
+  provider: releases
+  api_key:
+    secure: TsUlTjCpn0JUr474riZEoBvHIb0QIuG8a8A/OsG+4eSLEUnihY2rbJiMS94uyDRpcfgCAEgaqc87o0VW3iZaHT7a5p1OwWenm774Y8LW+GLp0vBoplvrdMsDfYXe/Zs4BnDdirFpI8pJaYjASl9rMzhOk5EJRdZDXnjri/CxhtvPv4hxAdebdtFTZfLx15lKTbxSHoBunF7G9ZQswiFS5r2BfxRvq1PSAoVJH+ZtbgrfxDFWMlLJXZTn/zmMOuzAV/L//13pFlJWvzUTNlr4wv7I/CXntuA7UvLOBxHnbqDriIDHdBba84X4T2I95q6tGT1ydqk2DUFrnyITtL938j4nJ12S7ptWuIY8SEV5az0cVvSZTH4am65d38CHZeGcHSlV0gPkhTP1CT5yL4lBY3/Qt4iEOr0yjukMLie9v6B1sB5VjJCqg2Ps6dGJR8bOumwF8SESmtuFOP8y+idFMBySX/bbna4tOuHzrW9elrBl364daCCa5pOnlIRz/QySAHfjL91saAIJcW+wXeFFQ+wJ3+7+0S3bvOY0RxHP+HdgkX5jscRVthDq2K4kmM7WFES9ohtpSNXj2aIgmXB0yxWdSGB8VYKtQLL4XIRgBbjNK14XJU8Pj+M0w0I8GesNTyP9KvBEInbYbfMV9TjzwzgcGfI5ExMi4n4lReZI2ls=
+  file_glob: "true"
+  file:
+    - "*.zip"
+    - "*.tar.gz"
+  skip_cleanup: true
+  on:
+    tags: true
+    branch: master
+    condition: $TRAVIS_GO_VERSION =~ $CURRENT_GO_VERSION
+    repo: msoap/go-carpet
