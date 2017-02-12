@@ -6,7 +6,6 @@ env:
     - CURRENT_GO_VERSION="1.7"
 
 go:
-  - 1.6.x
   - 1.7.x
   - master
 
