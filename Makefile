@@ -1,3 +1,9 @@
+APP_NAME := go-carpet
+APP_DESCRIPTION := $$(awk 'NR == 10, NR == 16' README.md)
+APP_URL := https://github.com/msoap/$(APP_NAME)
+APP_MAINTAINER := $$(git show HEAD | awk '$$1 == "Author:" {print $$2 " " $$3 " " $$4}')
+GIT_TAG := $$(git tag 2>/dev/null | grep -E '^[0-9]+' | tail -1)
+
 test:
 	go test -v -cover -race ./...
 
@@ -10,17 +16,28 @@ run:
 	go run go-carpet.go ast.go utils.go terminal_unix.go -256colors
 
 update-from-github:
-	go get -u github.com/msoap/go-carpet
+	go get -u github.com/msoap/$(APP_NAME)
 
 gometalinter:
 	gometalinter --vendor --cyclo-over=20 --line-length=150 --dupl-threshold=150 --min-occurrences=2 --enable=misspell --deadline=10m ./...
 
 generate-manpage:
-	docker run -it --rm -v $$PWD:/app -w /app ruby-ronn sh -c 'cat README.md | grep -v "^\[" | grep -v Screenshot > go-carpet.md; ronn go-carpet.md; mv ./go-carpet ./go-carpet.1; rm ./go-carpet.html ./go-carpet.md'
+	cat README.md | grep -v "^\[" | grep -v Screenshot > $(APP_NAME).md
+	docker run --rm -v $$PWD:/app -w /app msoap/ruby-ronn ronn $(APP_NAME).md
+	mv ./$(APP_NAME) ./$(APP_NAME).1
+	rm ./$(APP_NAME).{md,html}
 
 create-debian-amd64-package:
-	GOOS=linux GOARCH=amd64 go build -ldflags="-w" -o go-carpet
-	set -e ;\
-	TAG_NAME=$$(git tag 2>/dev/null | grep -E '^[0-9]+' | tail -1) ;\
-	docker run -it --rm -v $$PWD:/app -w /app -e TAG_NAME=$$TAG_NAME ruby-fpm sh -c 'fpm -s dir -t deb --name go-carpet -v $$TAG_NAME ./go-carpet=/usr/bin/ ./go-carpet.1=/usr/share/man/man1/ LICENSE=/usr/share/doc/go-carpet/copyright README.md=/usr/share/doc/go-carpet/'
-	rm go-carpet
+	GOOS=linux GOARCH=amd64 go build -ldflags="-w" -o $(APP_NAME)
+	docker run --rm -v $$PWD:/app -w /app msoap/ruby-fpm \
+		fpm -s dir -t deb --force --name $(APP_NAME) -v $(GIT_TAG) \
+			--license="$$(head -1 LICENSE)" \
+			--url=$(APP_URL) \
+			--description="$(APP_DESCRIPTION)" \
+			--maintainer="$(APP_MAINTAINER)" \
+			--category=network \
+			./$(APP_NAME)=/usr/bin/ \
+			./$(APP_NAME).1=/usr/share/man/man1/ \
+			LICENSE=/usr/share/doc/$(APP_NAME)/copyright \
+			README.md=/usr/share/doc/$(APP_NAME)/
+	rm $(APP_NAME)
