@@ -4,10 +4,11 @@ sudo: false
 env:
   global:
     - APP_NAME=go-carpet
-    - CURRENT_GO_VERSION="1.7"
+    - CURRENT_GO_VERSION="1.8"
 
 go:
   - 1.7.x
+  - 1.8
   - master
 
 before_install:
