@@ -13,7 +13,7 @@ lint:
 	errcheck ./...
 
 run:
-	go run go-carpet.go ast.go utils.go terminal_unix.go -256colors
+	go run go-carpet.go ast.go utils.go terminal_posix.go -256colors
 
 update-from-github:
 	go get -u github.com/msoap/$(APP_NAME)
