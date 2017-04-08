@@ -19,7 +19,7 @@ update-from-github:
 	go get -u github.com/msoap/$(APP_NAME)
 
 gometalinter:
-	gometalinter --vendor --cyclo-over=20 --line-length=150 --dupl-threshold=150 --min-occurrences=2 --enable=misspell --deadline=10m ./...
+	gometalinter --vendor --cyclo-over=20 --line-length=150 --dupl-threshold=150 --min-occurrences=2 --enable=misspell --deadline=10m --exclude=SA1022 ./...
 
 generate-manpage:
 	cat README.md | grep -v "^\[" | grep -v Screenshot > $(APP_NAME).md
