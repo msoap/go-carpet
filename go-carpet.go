@@ -87,7 +87,7 @@ func getShadeOfGreen(normCover float64) string {
 		Get all colors for 255-colors terminal:
 			gommand 'for i := 0; i < 256; i++ {fmt.Println(i, ansi.ColorCode(strconv.Itoa(i)) + "String" + ansi.ColorCode("reset"))}'
 	*/
-	var tenShadesOfGreen = []string{
+	var tenShadesOfGreen = [...]string{
 		"29",
 		"30",
 		"34",
