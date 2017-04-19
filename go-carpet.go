@@ -233,11 +233,11 @@ func getCoverForFile(fileProfile *cover.Profile, fileBytes []byte, config Config
 		fileNameDisplay = strings.TrimLeft(fileProfile.FileName, "_")
 	}
 
-	result = append(result, []byte(getColorHeader(fileNameDisplay, !config.summary))...)
-
 	if config.summary {
-		return result
+		return []byte(fileNameDisplay + "\n")
 	}
+
+	result = append(result, []byte(getColorHeader(fileNameDisplay, true))...)
 
 	boundaries := fileProfile.Boundaries(fileBytes)
 
