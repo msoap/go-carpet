@@ -233,7 +233,11 @@ func getCoverForFile(fileProfile *cover.Profile, fileBytes []byte, config Config
 		fileNameDisplay = strings.TrimLeft(fileProfile.FileName, "_")
 	}
 
-	result = append(result, []byte(getColorHeader(fileNameDisplay, true))...)
+	result = append(result, []byte(getColorHeader(fileNameDisplay, !config.summary))...)
+
+	if config.summary {
+		return result
+	}
 
 	boundaries := fileProfile.Boundaries(fileBytes)
 
@@ -338,6 +342,7 @@ type Config struct {
 	argsRaw        string
 	colors256      bool
 	includeVendor  bool
+	summary        bool
 }
 
 var config Config
@@ -346,6 +351,7 @@ func init() {
 	flag.StringVar(&config.filesFilterRaw, "file", "", "comma-separated list of files to test (default: all)")
 	flag.StringVar(&config.funcFilterRaw, "func", "", "comma-separated functions list (default: all functions)")
 	flag.BoolVar(&config.colors256, "256colors", false, "use more colors on 256-color terminal (indicate the level of coverage)")
+	flag.BoolVar(&config.summary, "summary", false, "only show summary for each file")
 	flag.BoolVar(&config.includeVendor, "include-vendor", false, "include vendor directories for show coverage (Godeps, vendor)")
 	flag.StringVar(&config.argsRaw, "args", "", "pass additional arguments for go test")
 	flag.Usage = func() {

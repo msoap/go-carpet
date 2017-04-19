@@ -14,10 +14,11 @@ Usage:
     go-carpet [-options] [paths]
     options:
         -256colors - use more colors on 256-color terminal (indicate the level of coverage)
+        -args - pass additional arguments for go test (for example "-short" or "-i -timeout t")
         -file string - comma-separated list of files to test (default: all)
         -func string - comma-separated functions list (default: all functions)
         -include-vendor - include vendor directories for show coverage (Godeps, vendor)
-        -args - pass additional arguments for go test (for example "-short" or "-i -timeout t")
+        -summary - only show summary for each file
         -version - get version
 
 Source: https://github.com/msoap/go-carpet
