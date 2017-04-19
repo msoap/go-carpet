@@ -225,6 +225,12 @@ func Test_getCoverForFile(t *testing.T) {
 	if string(coloredBytes) != expectOut {
 		t.Errorf("3. getCoverForFile() failed")
 	}
+
+	coloredBytes = getCoverForFile(fileProfile, fileContent, Config{summary: true})
+	expectOut = getColorHeader("filename.go - 100.0%", false)
+	if string(coloredBytes) != expectOut {
+		t.Errorf("4. getCoverForFile() failed; got:\n%s\nwant:\n%s", coloredBytes, expectOut)
+	}
 }
 
 func Test_runGoTest(t *testing.T) {
