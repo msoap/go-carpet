@@ -7,13 +7,13 @@ go-carpet - show test coverage for Go source files
 [![Homebrew formula exists](https://img.shields.io/badge/homebrew-🍺-d7af72.svg)](https://github.com/msoap/go-carpet#install)
 [![Report Card](https://goreportcard.com/badge/github.com/msoap/go-carpet)](https://goreportcard.com/report/github.com/msoap/go-carpet)
 
-To view the test coverage in the terminal, just run go-carpet.
+To view the test coverage in the terminal, just run `go-carpet`.
 
-It works outside of the directory GOPATH. And it works recursively for multiple packages.
+It works outside of the `GOPATH` directory. And it works recursively for multiple packages.
 
-With -256colors option, shades of green indicate the level of coverage.
+With `-256colors` option, shades of green indicate the level of coverage.
 
-By default skip vendor directories (Godeps,vendor), otherwise use -include-vendor option.
+By default skip vendor directories (Godeps,vendor), otherwise use `-include-vendor` option.
 
 Install
 -------
@@ -45,7 +45,7 @@ Usage
         -summary - only show summary for each file
         -version - get version
 
-For view in less, use `-R` option:
+For view coverage in less, use `-R` option:
 
     go-carpet | less -R
 
