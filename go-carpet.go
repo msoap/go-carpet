@@ -146,7 +146,7 @@ func guessAbsPathInGOPATH(GOPATH, relPath string) (absPath string, err error) {
 	return absPath, err
 }
 
-func getCoverForDir(path string, coverFileName string, filesFilter []string, config Config) (result []byte, profileBlocks []cover.ProfileBlock, err error) {
+func getCoverForDir(coverFileName string, filesFilter []string, config Config) (result []byte, profileBlocks []cover.ProfileBlock, err error) {
 	coverProfile, err := cover.ParseProfiles(coverFileName)
 	if err != nil {
 		return result, profileBlocks, err
@@ -408,7 +408,7 @@ func main() {
 			continue
 		}
 
-		coverInBytes, profileBlocks, errCover := getCoverForDir(path, coverFileName, config.filesFilter, config)
+		coverInBytes, profileBlocks, errCover := getCoverForDir(coverFileName, config.filesFilter, config)
 		if errCover != nil {
 			log.Print(errCover)
 			continue
