@@ -141,7 +141,7 @@ func guessAbsPathInGOPATH(GOPATH, relPath string) (absPath string, err error) {
 	}
 
 	if absPath == "" {
-		return "", fmt.Errorf("File '%s' not found in GOPATH", relPath)
+		return "", fmt.Errorf("file '%s' not found in GOPATH", relPath)
 	}
 	return absPath, err
 }
@@ -314,7 +314,7 @@ func getFileFuncRanges(fileBytes []byte, funcs []string) (result []textRange, er
 	}
 
 	if len(result) == 0 {
-		return nil, fmt.Errorf("Filter by functions: %v - not found", funcs)
+		return nil, fmt.Errorf("filter by functions: %v - not found", funcs)
 	}
 
 	return result, nil
