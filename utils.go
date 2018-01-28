@@ -49,8 +49,8 @@ func parseAdditionalArgs(argsRaw string, excludes []string) (resultArgs []string
 
 	NEXTARG:
 		for _, arg := range args {
-			for _, exludeArg := range excludes {
-				if exludeArg != "" && strings.HasPrefix(arg, exludeArg) {
+			for _, excludeArg := range excludes {
+				if excludeArg != "" && strings.HasPrefix(arg, excludeArg) {
 					log.Printf("arg: %q is not allowed, skip", arg)
 					continue NEXTARG
 				}
