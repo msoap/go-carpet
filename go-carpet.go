@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"go/build"
 	"io/ioutil"
 	"log"
 	"os"
@@ -128,7 +129,10 @@ func runGoTest(path string, coverFileName string, goTestArgs []string, hideStder
 
 func guessAbsPathInGOPATH(GOPATH, relPath string) (absPath string, err error) {
 	if GOPATH == "" {
-		return "", fmt.Errorf("GOPATH is not set")
+		GOPATH = build.Default.GOPATH
+		if GOPATH == "" {
+			return "", fmt.Errorf("GOPATH is not set")
+		}
 	}
 
 	gopathChunks := strings.Split(GOPATH, string(os.PathListSeparator))
