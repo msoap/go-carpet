@@ -4,11 +4,11 @@ sudo: false
 env:
   global:
     - APP_NAME=go-carpet
-    - CURRENT_GO_VERSION="1.9"
+    - CURRENT_GO_VERSION="1.10"
 
 go:
-  - 1.8.x
   - 1.9.x
+  - 1.10.x
   - master
 
 matrix:
@@ -18,7 +18,6 @@ matrix:
 
 before_install:
   - go get github.com/mattn/goveralls
-  - go get github.com/philwinder/gocoverage
   - go get github.com/kisielk/errcheck
 
 install: go get -t ./...
@@ -29,7 +28,7 @@ script:
   - errcheck ./...
   - diff <(gofmt -d .) <(echo -n "")
   - if [[ $TRAVIS_GO_VERSION =~ $CURRENT_GO_VERSION ]]; then
-      gocoverage && goveralls -coverprofile=profile.cov -service=travis-ci || true;
+      go test -covermode=count -coverprofile=profile.cov ./... && goveralls -coverprofile=profile.cov -service=travis-ci || true;
     fi
 
 before_deploy:
