@@ -1,0 +1,23 @@
+name: go-carpet
+version: '1.6'
+summary: Show test coverage in terminal for Go source files
+description: |
+  It works outside of the GOPATH directory. And it works recursively for multiple packages.
+  With -256colors option, shades of green indicate the level of coverage.
+  https://github.com/msoap/go-carpet
+grade: stable
+confinement: strict
+
+parts:
+  go-carpet:
+    after: [go]
+    source: .
+    plugin: go
+    go-importpath: github.com/msoap/go-carpet
+  go:
+    source-tag: go1.10
+
+apps:
+  go-carpet:
+    command: go-carpet
+    plugs: [home]
