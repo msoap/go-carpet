@@ -6,7 +6,7 @@ description: |
   With -256colors option, shades of green indicate the level of coverage.
   https://github.com/msoap/go-carpet
 grade: stable
-confinement: strict
+confinement: classic
 
 parts:
   go-carpet:
