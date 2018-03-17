@@ -6,7 +6,7 @@ description: |
   With -256colors option, shades of green indicate the level of coverage.
   https://github.com/msoap/go-carpet
 grade: stable
-confinement: classic
+confinement: strict
 
 parts:
   go-carpet:
@@ -14,6 +14,8 @@ parts:
     source: .
     plugin: go
     go-importpath: github.com/msoap/go-carpet
+    stage-packages:
+      - golang-1.10-go
   go:
     source-tag: go1.10
 
