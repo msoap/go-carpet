@@ -6,7 +6,6 @@ go-carpet - show test coverage for Go source files
 [![Coverage Status](https://coveralls.io/repos/github/msoap/go-carpet/badge.svg?branch=master)](https://coveralls.io/github/msoap/go-carpet?branch=master)
 [![Report Card](https://goreportcard.com/badge/github.com/msoap/go-carpet)](https://goreportcard.com/report/github.com/msoap/go-carpet)
 [![Homebrew formula exists](https://img.shields.io/badge/homebrew-🍺-d7af72.svg)](https://github.com/msoap/go-carpet#install)
-[![Snap Status](https://build.snapcraft.io/badge/msoap/go-carpet.svg)](https://build.snapcraft.io/user/msoap/go-carpet)
 
 To view the test coverage in the terminal, just run `go-carpet`.
 
@@ -55,17 +54,6 @@ Install from homebrew (OS X):
     brew install go-carpet
     # update:
     brew upgrade go-carpet
-
-Using snap (Ubuntu or any Linux distribution with snap):
-
-    # install stable version:
-    sudo snap install go-carpet
-    
-    # install the latest version:
-    sudo snap install --edge go-carpet
-    
-    # update
-    sudo snap refresh go-carpet
 
 ### Screenshot
 
