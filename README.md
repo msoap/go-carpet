@@ -19,15 +19,21 @@ By default skip vendor directories (Godeps,vendor), otherwise use `-include-vend
 Usage
 -----
 
-    go-carpet [-options] [paths]
-    options:
-        -256colors - use more colors on 256-color terminal (indicate the level of coverage)
-        -args - pass additional arguments for go test (for example "-short" or "-i -timeout t")
-        -file string - comma-separated list of files to test (default: all)
-        -func string - comma-separated functions list (default: all functions)
-        -include-vendor - include vendor directories for show coverage (Godeps, vendor)
-        -summary - only show summary for each file
-        -version - get version
+    usage: go-carpet [options] [paths]
+      -256colors
+        	use more colors on 256-color terminal (indicate the level of coverage)
+      -args string
+        	pass additional arguments for go test
+      -file string
+        	comma-separated list of files to test (default: all)
+      -func string
+        	comma-separated functions list (default: all functions)
+      -include-vendor
+        	include vendor directories for show coverage (Godeps, vendor)
+      -summary
+        	only show summary for each file
+      -version
+        	get version
 
 For view coverage in less, use `-R` option:
 
@@ -39,7 +45,7 @@ Install
 From source:
 
     go get -u github.com/msoap/go-carpet
-    ln -s $GOPATH/bin/go-carpet /usr/local/bin/go-carpet
+    sudo ln -s $(go env GOPATH)/bin/go-carpet /usr/local/bin/go-carpet
 
 Download binaries from: [releases](https://github.com/msoap/go-carpet/releases) (OS X/Linux/Windows)
 
