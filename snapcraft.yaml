@@ -1,5 +1,5 @@
 name: go-carpet
-version: '1.6'
+version: '1.7'
 summary: Show test coverage in terminal for Go source files
 description: |
   It works outside of the GOPATH directory. And it works recursively for multiple packages.

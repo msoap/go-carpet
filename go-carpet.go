@@ -22,7 +22,7 @@ const (
 
 usage: go-carpet [options] [paths]`
 
-	appVersion = "1.6"
+	appVersion = "1.7"
 
 	// predefined go test options
 	goTestCoverProfile = "-coverprofile"
