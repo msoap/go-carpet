@@ -150,7 +150,8 @@ func guessAbsPathInGOPATH(GOPATH, relPath string) (absPath string, err error) {
 		if cwd, err = os.Getwd(); err == nil {
 			var f *os.File
 			if f, err = os.Open("go.mod"); err == nil {
-				defer f.Close()
+				// The func wrap with the _ = is just to quiet errcheck; probably better some other way?
+				defer func() { _ = f.Close() }()
 				scanner := bufio.NewScanner(f)
 				for scanner.Scan() {
 					line := scanner.Text()
