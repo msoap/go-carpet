@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"go/build"
@@ -141,6 +142,27 @@ func guessAbsPathInGOPATH(GOPATH, relPath string) (absPath string, err error) {
 		if _, err = os.Stat(guessAbsPath); err == nil {
 			absPath = guessAbsPath
 			break
+		}
+	}
+
+	if absPath == "" {
+		var cwd string
+		if cwd, err = os.Getwd(); err == nil {
+			var f *os.File
+			if f, err = os.Open("go.mod"); err == nil {
+				defer f.Close()
+				scanner := bufio.NewScanner(f)
+				for scanner.Scan() {
+					line := scanner.Text()
+					if strings.HasPrefix(line, "module ") {
+						guessAbsPath := filepath.Join(cwd, strings.TrimPrefix(relPath, strings.TrimSpace(strings.SplitN(line, " ", 2)[1])))
+						if _, err = os.Stat(guessAbsPath); err == nil {
+							absPath = guessAbsPath
+						}
+						break
+					}
+				}
+			}
 		}
 	}
 
