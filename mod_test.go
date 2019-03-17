@@ -6,6 +6,10 @@ import (
 )
 
 func Test_guessAbsPathInGoMod(t *testing.T) {
+	if err := os.Setenv("GO111MODULE", "on"); err != nil {
+		t.Fatalf("failed to set env: %s", err)
+	}
+
 	t.Run("empty", func(t *testing.T) {
 		if _, err := guessAbsPathInGoMod(""); err == nil {
 			t.Errorf("failed to test empty file")
@@ -15,11 +19,11 @@ func Test_guessAbsPathInGoMod(t *testing.T) {
 	t.Run("real", func(t *testing.T) {
 		gotAbsPath, err := guessAbsPathInGoMod("github.com/msoap/go-carpet/terminal_posix.go")
 		if err != nil {
-			t.Errorf("failed to test real file")
+			t.Errorf("failed to test real file: %s", err)
 		}
 
 		if _, err := os.Stat(gotAbsPath); err != nil {
-			t.Errorf("failed to test real file")
+			t.Errorf("failed to test real file: %s", err)
 		}
 	})
 
