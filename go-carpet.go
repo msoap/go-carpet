@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"flag"
 	"fmt"
 	"go/build"
@@ -39,6 +38,8 @@ var (
 
 	// directories for skip
 	skipDirs = []string{"testdata"}
+
+	errIsNotInGoMod = fmt.Errorf("is not in go modules")
 )
 
 func getDirsWithTests(includeVendor bool, roots ...string) (result []string, err error) {
@@ -146,30 +147,9 @@ func guessAbsPathInGOPATH(GOPATH, relPath string) (absPath string, err error) {
 	}
 
 	if absPath == "" {
-		var cwd string
-		if cwd, err = os.Getwd(); err == nil {
-			var f *os.File
-			if f, err = os.Open("go.mod"); err == nil {
-				// The func wrap with the _ = is just to quiet errcheck; probably better some other way?
-				defer func() { _ = f.Close() }()
-				scanner := bufio.NewScanner(f)
-				for scanner.Scan() {
-					line := scanner.Text()
-					if strings.HasPrefix(line, "module ") {
-						guessAbsPath := filepath.Join(cwd, strings.TrimPrefix(relPath, strings.TrimSpace(strings.SplitN(line, " ", 2)[1])))
-						if _, err = os.Stat(guessAbsPath); err == nil {
-							absPath = guessAbsPath
-						}
-						break
-					}
-				}
-			}
-		}
-	}
-
-	if absPath == "" {
 		return "", fmt.Errorf("file '%s' not found in GOPATH", relPath)
 	}
+
 	return absPath, err
 }
 
@@ -181,13 +161,20 @@ func getCoverForDir(coverFileName string, filesFilter []string, config Config) (
 
 	for _, fileProfile := range coverProfile {
 		var fileName string
-		if strings.HasPrefix(fileProfile.FileName, "_") {
+		if strings.HasPrefix(fileProfile.FileName, "/") {
+			// TODO: what about windows?
+			fileName = fileProfile.FileName
+		} else if strings.HasPrefix(fileProfile.FileName, "_") {
 			// absolute path (or relative in tests)
 			if runtime.GOOS != "windows" {
 				fileName = strings.TrimLeft(fileProfile.FileName, "_")
 			} else {
 				// "_\C_\Users\..." -> "C:\Users\..."
 				fileName = reWindowsPathFix.ReplaceAllString(fileProfile.FileName, "$1:")
+			}
+		} else if fileName, err = guessAbsPathInGoMod(fileProfile.FileName); err != errIsNotInGoMod {
+			if err != nil {
+				return result, profileBlocks, err
 			}
 		} else {
 			// file in one dir in GOPATH
