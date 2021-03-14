@@ -50,7 +50,7 @@ func guessAbsPathInGoMod(relPath string) (string, error) {
 	}()
 
 	moduleName := ""
-	if err := byline.NewReader(modFile).AWKMode(func(line string, fields []string, vars byline.AWKVars) (string, error) {
+	if err := byline.NewReader(modFile).AWKMode(func(_ string, fields []string, vars byline.AWKVars) (string, error) {
 		if vars.NF == 2 && fields[0] == "module" && fields[1] != "" {
 			moduleName = fields[1]
 			return "", io.EOF

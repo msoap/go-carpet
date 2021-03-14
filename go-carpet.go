@@ -49,7 +49,7 @@ func getDirsWithTests(includeVendor bool, roots ...string) (result []string, err
 
 	dirs := map[string]struct{}{}
 	for _, root := range roots {
-		err = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		err = filepath.Walk(root, func(path string, _ os.FileInfo, _ error) error {
 			if strings.HasSuffix(path, "_test.go") {
 				dirs[filepath.Dir(path)] = struct{}{}
 			}
