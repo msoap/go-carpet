@@ -362,12 +362,12 @@ type Config struct {
 var config Config
 
 func init() {
-	flag.StringVar(&config.filesFilterRaw, "file", "", "comma-separated list of files to test (default: all)")
-	flag.StringVar(&config.funcFilterRaw, "func", "", "comma-separated functions list (default: all functions)")
+	flag.StringVar(&config.filesFilterRaw, "file", "", "comma-separated list of `files` to test (default: all)")
+	flag.StringVar(&config.funcFilterRaw, "func", "", "comma-separated `functions` list (default: all functions)")
 	flag.BoolVar(&config.colors256, "256colors", false, "use more colors on 256-color terminal (indicate the level of coverage)")
 	flag.BoolVar(&config.summary, "summary", false, "only show summary for each file")
 	flag.BoolVar(&config.includeVendor, "include-vendor", false, "include vendor directories for show coverage (Godeps, vendor)")
-	flag.StringVar(&config.argsRaw, "args", "", "pass additional arguments for go test")
+	flag.StringVar(&config.argsRaw, "args", "", "pass additional `arguments` for go test")
 	flag.Usage = func() {
 		fmt.Println(usageMessage)
 		flag.PrintDefaults()
