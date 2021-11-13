@@ -1,5 +1,6 @@
 [33mgithub.com/msoap/go-carpet/terminal_posix.go - 100.0%[0m
 [90m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+//go:build !windows
 // +build !windows
 
 package main

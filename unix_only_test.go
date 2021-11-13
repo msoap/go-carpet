@@ -69,6 +69,6 @@ func Test_getCoverForDir(t *testing.T) {
 		t.Errorf("13. getCoverForDir() failed: %v", err)
 	}
 	if !reflect.DeepEqual(bytes, expect) {
-		t.Errorf("14. getCoverForDir() not equal")
+		t.Errorf("14. getCoverForDir() not equal\ngot:\n%s\nexpect:\n%s\n", bytes, expect)
 	}
 }
