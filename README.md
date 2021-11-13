@@ -1,7 +1,7 @@
 go-carpet - show test coverage for Go source files
 ==================================================
 
-[![GoDoc](https://godoc.org/github.com/msoap/go-carpet?status.svg)](https://godoc.org/github.com/msoap/go-carpet)
+[![Go Reference](https://pkg.go.dev/badge/github.com/msoap/go-carpet.svg)](https://pkg.go.dev/github.com/msoap/go-carpet)
 [![Go](https://github.com/msoap/go-carpet/actions/workflows/go.yml/badge.svg)](https://github.com/msoap/go-carpet/actions/workflows/go.yml)
 [![Coverage Status](https://coveralls.io/repos/github/msoap/go-carpet/badge.svg?branch=master)](https://coveralls.io/github/msoap/go-carpet?branch=master)
 [![Report Card](https://goreportcard.com/badge/github.com/msoap/go-carpet)](https://goreportcard.com/report/github.com/msoap/go-carpet)
