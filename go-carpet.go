@@ -22,7 +22,7 @@ const (
 
 usage: go-carpet [options] [paths]`
 
-	appVersion = "1.8"
+	version = "1.9.0"
 
 	// predefined go test options
 	goTestCoverProfile = "-coverprofile"
@@ -380,7 +380,7 @@ func main() {
 	flag.Parse()
 
 	if *versionFl {
-		fmt.Println(appVersion)
+		fmt.Println(version)
 		os.Exit(0)
 	}
 
