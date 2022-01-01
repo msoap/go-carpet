@@ -43,8 +43,7 @@ Install
 
 From source:
 
-    go get -u github.com/msoap/go-carpet
-    sudo ln -s $(go env GOPATH)/bin/go-carpet /usr/local/bin/go-carpet
+    go install github.com/msoap/go-carpet@latest
 
 Download binaries from: [releases](https://github.com/msoap/go-carpet/releases) (OS X/Linux/Windows)
 
