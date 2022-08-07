@@ -215,8 +215,9 @@ func getColorHeader(header string, addUnderiline bool) string {
 }
 
 // algorithms from Go-sources:
-//   src/cmd/cover/html.go::percentCovered()
-//   src/testing/cover.go::coverReport()
+//
+//	src/cmd/cover/html.go::percentCovered()
+//	src/testing/cover.go::coverReport()
 func getStatForProfileBlocks(fileProfileBlocks []cover.ProfileBlock) (stat float64) {
 	var total, covered int64
 	for _, profileBlock := range fileProfileBlocks {

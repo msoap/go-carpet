@@ -19,7 +19,8 @@ func assertDontPanic(t *testing.T, fn func(), name string) {
 }
 
 // usage:
-//     defer testChdir(t, "/path")()
+//
+//	defer testChdir(t, "/path")()
 func testChdir(t *testing.T, dir string) func() {
 	cwd, err := os.Getwd()
 	if err != nil {

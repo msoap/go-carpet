@@ -13,7 +13,8 @@ type Func struct {
 }
 
 // getGolangFuncs - parse golang source file and get all functions
-//   funcs, err := getGolangFuncs(goFileContentInBytes)
+//
+//	funcs, err := getGolangFuncs(goFileContentInBytes)
 func getGolangFuncs(fileContent []byte) (result []Func, err error) {
 	fset := token.NewFileSet()
 	astFile, err := parser.ParseFile(fset, "", fileContent, 0)
