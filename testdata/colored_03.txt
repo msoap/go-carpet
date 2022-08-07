@@ -1,7 +1,6 @@
-[33mgithub.com/msoap/go-carpet/terminal_posix.go - 100.0%[0m
-[90m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[0;33mgithub.com/msoap/go-carpet/terminal_posix.go - 100.0%[0m
+[0;90m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
 //go:build !windows
-// +build !windows
 
 package main
 
@@ -11,6 +10,6 @@ import (
 )
 
 func getColorWriter() io.Writer {
-	[32mreturn (io.Writer)(os.Stdout)[0m
-}
+	return (io.Writer)(os.Stdout)
+}[0;32m
 
