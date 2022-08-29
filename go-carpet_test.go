@@ -234,6 +234,37 @@ func Test_getCoverForFile(t *testing.T) {
 	}
 }
 
+func Test_getCoverForFile_mincov_flag(t *testing.T) {
+	// 50% coverage sample
+	fileProfile := &cover.Profile{
+		FileName: "filename.go",
+		Mode:     "count",
+		Blocks: []cover.ProfileBlock{
+			{
+				NumStmt: 1,
+				Count:   0,
+			},
+			{
+				NumStmt: 1,
+				Count:   1,
+			},
+		},
+	}
+	fileContent := []byte("// sample code")
+
+	// Assert empty. Threshold is below 50%
+	covered := getCoverForFile(fileProfile, fileContent, Config{minCoverage: 49})
+	if len(covered) != 0 {
+		t.Errorf("getCoverForFile() mincov flag failed. files above mincov should not be included")
+	}
+
+	// Assert not empty. Threshold is equal or above 50%
+	uncovered := getCoverForFile(fileProfile, fileContent, Config{minCoverage: 50})
+	if len(uncovered) == 0 {
+		t.Errorf("getCoverForFile() mincov flag failed. files below mincov should be included")
+	}
+}
+
 func Test_runGoTest(t *testing.T) {
 	err := runGoTest("./not exists dir", "", []string{}, true)
 	if err == nil {
