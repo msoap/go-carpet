@@ -236,6 +236,15 @@ func getStatForProfileBlocks(fileProfileBlocks []cover.ProfileBlock) (stat float
 func getCoverForFile(fileProfile *cover.Profile, fileBytes []byte, config Config) (result []byte) {
 	stat := getStatForProfileBlocks(fileProfile.Blocks)
 
+	// Avoid if flag.Parse() was not called yet.
+	if config.minCoverage == 0 {
+		config.minCoverage = stat
+	}
+
+	if int(stat) > int(config.minCoverage) {
+		return []byte{}
+	}
+
 	textRanges, err := getFileFuncRanges(fileBytes, config.funcFilter)
 	if err != nil {
 		return result
@@ -355,6 +364,7 @@ type Config struct {
 	funcFilterRaw  string
 	funcFilter     []string
 	argsRaw        string
+	minCoverage    float64
 	colors256      bool
 	includeVendor  bool
 	summary        bool
@@ -369,6 +379,7 @@ func init() {
 	flag.BoolVar(&config.summary, "summary", false, "only show summary for each file")
 	flag.BoolVar(&config.includeVendor, "include-vendor", false, "include vendor directories for show coverage (Godeps, vendor)")
 	flag.StringVar(&config.argsRaw, "args", "", "pass additional `arguments` for go test")
+	flag.Float64Var(&config.minCoverage, "mincov", 100.0, "coverage threshold of the file to be displayed (in percent)")
 	flag.Usage = func() {
 		fmt.Println(usageMessage)
 		flag.PrintDefaults()
