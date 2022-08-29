@@ -15,6 +15,8 @@ With `-256colors` option, shades of green indicate the level of coverage.
 
 By default skip vendor directories (Godeps,vendor), otherwise use `-include-vendor` option.
 
+The `-mincov` option allows you to specify a coverage threshold to limit the files to be displayed.
+
 Usage
 -----
 
@@ -29,6 +31,8 @@ Usage
         	comma-separated functions list (default: all functions)
       -include-vendor
         	include vendor directories for show coverage (Godeps, vendor)
+      -mincov float
+        	coverage threshold of the file to be displayed (in percent) (default 100)
       -summary
         	only show summary for each file
       -version
