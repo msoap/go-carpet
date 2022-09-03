@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"go/build"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 	"os/exec"
@@ -77,7 +77,7 @@ func readFile(fileName string) (result []byte, err error) {
 		return result, err
 	}
 
-	result, err = ioutil.ReadAll(fileReader)
+	result, err = io.ReadAll(fileReader)
 	if err == nil {
 		err = fileReader.Close()
 	}
@@ -336,7 +336,7 @@ func getFileFuncRanges(fileBytes []byte, funcs []string) (result []textRange, er
 }
 
 func getTempFileName() (string, error) {
-	tmpFile, err := ioutil.TempFile(".", "go-carpet-coverage-out-")
+	tmpFile, err := os.CreateTemp(".", "go-carpet-coverage-out-")
 	if err != nil {
 		return "", err
 	}

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 	"reflect"
@@ -165,7 +165,7 @@ func Test_parseAdditionalArgs(t *testing.T) {
 		},
 	}
 
-	log.SetOutput(ioutil.Discard)
+	log.SetOutput(io.Discard)
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
