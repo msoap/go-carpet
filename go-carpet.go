@@ -160,6 +160,11 @@ func getCoverForDir(coverFileName string, filesFilter []string, config Config) (
 	}
 
 	for _, fileProfile := range coverProfile {
+		// Skip files if minimal coverage is set and is covered more than minimal coverage
+		if config.minCoverage > 0 && config.minCoverage < 100.0 && getStatForProfileBlocks(fileProfile.Blocks) > config.minCoverage {
+			continue
+		}
+
 		var fileName string
 		if strings.HasPrefix(fileProfile.FileName, "/") {
 			// TODO: what about windows?
@@ -241,6 +246,7 @@ func getCoverForFile(fileProfile *cover.Profile, fileBytes []byte, config Config
 		config.minCoverage = stat
 	}
 
+	// Retun empty to skip if minimal coverage is set and is covered more than minimal coverage
 	if int(stat) > int(config.minCoverage) {
 		return []byte{}
 	}
