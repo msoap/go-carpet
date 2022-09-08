@@ -160,6 +160,11 @@ func getCoverForDir(coverFileName string, filesFilter []string, config Config) (
 	}
 
 	for _, fileProfile := range coverProfile {
+		// Skip files if minimal coverage is set and is covered more than minimal coverage
+		if config.minCoverage > 0 && config.minCoverage < 100.0 && getStatForProfileBlocks(fileProfile.Blocks) > config.minCoverage {
+			continue
+		}
+
 		var fileName string
 		if strings.HasPrefix(fileProfile.FileName, "/") {
 			// TODO: what about windows?
@@ -355,6 +360,7 @@ type Config struct {
 	funcFilterRaw  string
 	funcFilter     []string
 	argsRaw        string
+	minCoverage    float64
 	colors256      bool
 	includeVendor  bool
 	summary        bool
@@ -369,6 +375,7 @@ func init() {
 	flag.BoolVar(&config.summary, "summary", false, "only show summary for each file")
 	flag.BoolVar(&config.includeVendor, "include-vendor", false, "include vendor directories for show coverage (Godeps, vendor)")
 	flag.StringVar(&config.argsRaw, "args", "", "pass additional `arguments` for go test")
+	flag.Float64Var(&config.minCoverage, "mincov", 100.0, "coverage threshold of the file to be displayed (in percent)")
 	flag.Usage = func() {
 		fmt.Println(usageMessage)
 		flag.PrintDefaults()

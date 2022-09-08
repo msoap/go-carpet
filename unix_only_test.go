@@ -79,3 +79,45 @@ func Test_getCoverForDir(t *testing.T) {
 		}
 	})
 }
+
+func Test_getCoverForDir_mincov_flag(t *testing.T) {
+	t.Run("covered 100% mincov 100%", func(t *testing.T) {
+		conf := Config{
+			colors256:   false,
+			minCoverage: 100.0,
+		}
+
+		// cover_00.out has 100% coverage of 2 files
+		_, profileBlocks, err := getCoverForDir("./testdata/cover_00.out", []string{"file_01.go"}, conf)
+		if err != nil {
+			t.Errorf("getCoverForDir() failed with error: %s", err)
+		}
+
+		expectLen := 2
+		actualLen := len(profileBlocks)
+
+		if expectLen != actualLen {
+			t.Errorf("1. minimum coverage 100%% should print all the blocks. want %v, got: %v", expectLen, actualLen)
+		}
+	})
+
+	t.Run("covered 100% mincov 50%", func(t *testing.T) {
+		conf := Config{
+			colors256:   false,
+			minCoverage: 50.0,
+		}
+
+		// cover_00.out has 100% coverage of 2 files
+		_, profileBlocks, err := getCoverForDir("./testdata/cover_00.out", []string{"file_01.go"}, conf)
+		if err != nil {
+			t.Errorf("getCoverForDir() failed with error: %s", err)
+		}
+
+		expectLen := 0
+		actualLen := len(profileBlocks)
+
+		if expectLen != actualLen {
+			t.Errorf("2. minimum coverage 50%% for 100%% covered source should print nothing. want %v, got: %v", expectLen, actualLen)
+		}
+	})
+}
