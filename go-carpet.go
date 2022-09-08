@@ -241,16 +241,6 @@ func getStatForProfileBlocks(fileProfileBlocks []cover.ProfileBlock) (stat float
 func getCoverForFile(fileProfile *cover.Profile, fileBytes []byte, config Config) (result []byte) {
 	stat := getStatForProfileBlocks(fileProfile.Blocks)
 
-	// Avoid if flag.Parse() was not called yet.
-	if config.minCoverage == 0 {
-		config.minCoverage = stat
-	}
-
-	// Retun empty to skip if minimal coverage is set and is covered more than minimal coverage
-	if int(stat) > int(config.minCoverage) {
-		return []byte{}
-	}
-
 	textRanges, err := getFileFuncRanges(fileBytes, config.funcFilter)
 	if err != nil {
 		return result
