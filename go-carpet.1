@@ -27,12 +27,16 @@ usage: go\-carpet [options] [paths]
         use more colors on 256\-color terminal (indicate the level of coverage)
   \-args string
         pass additional arguments for go test
+  \-enforce
+        fail if any file's coverage is below mincov
   \-file string
         comma\-separated list of files to test (default: all)
   \-func string
         comma\-separated functions list (default: all functions)
   \-include\-vendor
         include vendor directories for show coverage (Godeps, vendor)
+  \-mincov float
+        coverage threshold of the file to be displayed (in percent) (default 100)
   \-summary
         only show summary for each file
   \-version

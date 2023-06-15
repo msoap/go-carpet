@@ -153,10 +153,10 @@ func guessAbsPathInGOPATH(GOPATH, relPath string) (absPath string, err error) {
 	return absPath, err
 }
 
-func getCoverForDir(coverFileName string, filesFilter []string, config Config) (result []byte, profileBlocks []cover.ProfileBlock, err error) {
+func getCoverForDir(coverFileName string, filesFilter []string, config Config) (result []byte, belowMin bool, profileBlocks []cover.ProfileBlock, err error) {
 	coverProfile, err := cover.ParseProfiles(coverFileName)
 	if err != nil {
-		return result, profileBlocks, err
+		return result, belowMin, profileBlocks, err
 	}
 
 	for _, fileProfile := range coverProfile {
@@ -179,13 +179,13 @@ func getCoverForDir(coverFileName string, filesFilter []string, config Config) (
 			}
 		} else if fileName, err = guessAbsPathInGoMod(fileProfile.FileName); err != errIsNotInGoMod {
 			if err != nil {
-				return result, profileBlocks, err
+				return result, belowMin, profileBlocks, err
 			}
 		} else {
 			// file in one dir in GOPATH
 			fileName, err = guessAbsPathInGOPATH(os.Getenv("GOPATH"), fileProfile.FileName)
 			if err != nil {
-				return result, profileBlocks, err
+				return result, belowMin, profileBlocks, err
 			}
 		}
 
@@ -193,17 +193,19 @@ func getCoverForDir(coverFileName string, filesFilter []string, config Config) (
 			continue
 		}
 
+		// If we get here, we're below minimum specified coverage and we weren't filtered out
+		belowMin = true
 		var fileBytes []byte
 		fileBytes, err = readFile(fileName)
 		if err != nil {
-			return result, profileBlocks, err
+			return result, belowMin, profileBlocks, err
 		}
 
 		result = append(result, getCoverForFile(fileProfile, fileBytes, config)...)
 		profileBlocks = append(profileBlocks, fileProfile.Blocks...)
 	}
 
-	return result, profileBlocks, err
+	return result, belowMin, profileBlocks, err
 }
 
 func getColorHeader(header string, addUnderiline bool) string {
@@ -355,15 +357,16 @@ func getTempFileName() (string, error) {
 
 // Config - application config
 type Config struct {
-	filesFilterRaw string
-	filesFilter    []string
-	funcFilterRaw  string
-	funcFilter     []string
-	argsRaw        string
-	minCoverage    float64
-	colors256      bool
-	includeVendor  bool
-	summary        bool
+	filesFilterRaw  string
+	filesFilter     []string
+	funcFilterRaw   string
+	funcFilter      []string
+	argsRaw         string
+	minCoverage     float64
+	colors256       bool
+	includeVendor   bool
+	summary         bool
+	enforceCoverage bool
 }
 
 var config Config
@@ -376,6 +379,7 @@ func init() {
 	flag.BoolVar(&config.includeVendor, "include-vendor", false, "include vendor directories for show coverage (Godeps, vendor)")
 	flag.StringVar(&config.argsRaw, "args", "", "pass additional `arguments` for go test")
 	flag.Float64Var(&config.minCoverage, "mincov", 100.0, "coverage threshold of the file to be displayed (in percent)")
+	flag.BoolVar(&config.enforceCoverage, "enforce", false, "fail if any file's coverage is below mincov")
 	flag.Usage = func() {
 		fmt.Println(usageMessage)
 		flag.PrintDefaults()
@@ -383,13 +387,13 @@ func init() {
 	}
 }
 
-func main() {
+func goCarpet() int {
 	versionFl := flag.Bool("version", false, "get version")
 	flag.Parse()
 
 	if *versionFl {
 		fmt.Println(version)
-		os.Exit(0)
+		return 0
 	}
 
 	config.filesFilter = grepEmptyStringSlice(strings.Split(config.filesFilterRaw, ","))
@@ -424,16 +428,20 @@ func main() {
 		log.Fatal(err)
 	}
 
+	someFileBelowMin := false
 	for _, path := range testDirs {
 		if err = runGoTest(path, coverFileName, additionalArgs, false); err != nil {
 			log.Print(err)
 			continue
 		}
 
-		coverInBytes, profileBlocks, errCover := getCoverForDir(coverFileName, config.filesFilter, config)
+		coverInBytes, belowMin, profileBlocks, errCover := getCoverForDir(coverFileName, config.filesFilter, config)
 		if errCover != nil {
 			log.Print(errCover)
 			continue
+		}
+		if belowMin {
+			someFileBelowMin = true
 		}
 		_, err = stdOut.Write(coverInBytes)
 		if err != nil {
@@ -451,4 +459,14 @@ func main() {
 			log.Fatal(err)
 		}
 	}
+
+	if someFileBelowMin && config.enforceCoverage {
+		return 1
+	}
+
+	return 0
+}
+
+func main() {
+	os.Exit(goCarpet())
 }
