@@ -429,9 +429,11 @@ func goCarpet() int {
 	}
 
 	someFileBelowMin := false
+	testsPass := true
 	for _, path := range testDirs {
 		if err = runGoTest(path, coverFileName, additionalArgs, false); err != nil {
 			log.Print(err)
+			testsPass = false
 			continue
 		}
 
@@ -460,7 +462,7 @@ func goCarpet() int {
 		}
 	}
 
-	if someFileBelowMin && config.enforceCoverage {
+	if !testsPass || (someFileBelowMin && config.enforceCoverage) {
 		return 1
 	}
 
