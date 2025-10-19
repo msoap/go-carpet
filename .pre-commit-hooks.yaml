@@ -1,0 +1,8 @@
+- id: go-carpet
+  name: go-carpet
+  entry: .pre-commit-runner.sh
+  language: script
+  files: \.go
+  description: enforce a minimum level of coverage on changed files
+  args:
+    - "-mincov=50"

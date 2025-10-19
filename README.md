@@ -22,25 +22,53 @@ Usage
 
     usage: go-carpet [options] [paths]
       -256colors
-        	use more colors on 256-color terminal (indicate the level of coverage)
-      -args string
-        	pass additional arguments for go test
-      -file string
-        	comma-separated list of files to test (default: all)
-      -func string
-        	comma-separated functions list (default: all functions)
+            use more colors on 256-color terminal (indicate the level of coverage)
+      -args arguments
+            pass additional arguments for go test
+      -enforce
+            fail if any file's coverage is below mincov
+      -file files
+            comma-separated list of files to test (default: all)
+      -func functions
+            comma-separated functions list (default: all functions)
       -include-vendor
-        	include vendor directories for show coverage (Godeps, vendor)
+            include vendor directories for show coverage (Godeps, vendor)
       -mincov float
-        	coverage threshold of the file to be displayed (in percent) (default 100)
+            coverage threshold of the file to be displayed (in percent) (default 100)
       -summary
-        	only show summary for each file
+            only show summary for each file
       -version
-        	get version
+            get version
 
 For view coverage in less, use `-R` option:
 
     go-carpet | less -R
+
+As a pre-commit hook
+--------------------
+
+[Pre-commit](https://pre-commit.com) is a tool that makes it easy to run checks on every Git commit.
+You can use `go-carpet` as a pre-commit hook by installing pre-commit and including the following
+in your `.pre-commit-config.yaml`:
+
+```
+repos:
+  ...
+  - repo: https://github.com/msoap/go-carpet
+    rev: v1.11.0
+    hooks:
+      - id: go-carpet
+```
+
+By default, `go-carpet` will enforce 50% test coverage on every changed file.  You can customize
+the threshold in your hook with an arguments block as follows:
+
+```
+args:
+  - "-mincov=X"
+```
+
+You must have `go-carpet` installed in your PATH for this pre-commit hook to work.
 
 Install
 -------
